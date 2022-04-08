@@ -9,7 +9,9 @@ ifeq ($(HOSTTYPE),)
 HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
 
+##### binaries #####
 NAME = libft_malloc_$(HOSTTYPE).so
+TEST = test.out
 
 ##### SRC & OBJ PATH #####
 SRCPATH = ./malloc
@@ -19,6 +21,7 @@ OBJPATH = $(SRCPATH)/obj
 LIBFTPATH = ./libft
 LIBFT = $(LIBFTPATH)/libft.a
 LIBSD = -lbsd
+LIBMALLOC = ft_malloc_$(HOSTTYPE)
 
 ##### INCLUDE #####
 PATH_INCLUDE = $(SRCPATH)/includes
@@ -32,6 +35,7 @@ INC = $(addprefix -I , $(PATH_INCLUDE) $(PATH_INCLUDE2))
 CC = clang
 ##### COMPILATION FLAG #####
 CCFLAGS = -Wall -Wextra -Werror -std=c90 -fvisibility=hidden
+CCTESTFLAGS = -Wall -Wextra -Werror -std=c90
 
 ##### OSTYPE #####
 UNAME := $(shell uname)
@@ -44,7 +48,7 @@ else
 endif
 
 ##### SRCS #####
-SRCS = $(addprefix $(SRCPATH)/, malloc.c)
+SRCS = $(addprefix $(SRCPATH)/, malloc.c show_alloc_mem.c)
 
 OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 
@@ -66,12 +70,16 @@ $(NAME): $(OBJ) $(LIBFT)
 $(LIBFT): 
 	@Make -C $(LIBFTPATH)
 
-message :
-	@echo "\n$(END)$(BLUE)# Making $(NAME) objects #$(END)$(GREY)"
-
-
 $(OBJPATH)/%.o : $(SRCPATH)/%.c $(HEADERS)
 	$(CC) $(CCFLAGS) $(INC) -c $< -o $@
+
+test: all
+	$(CC) $(CCTESTFLAGS) $(INC) main.c -L. -l$(LIBMALLOC) -o $(TEST)
+	@echo "\n$(END)$(GREEN)# $(TEST) is built #$(END)"
+
+runtest: test
+	@echo "\n$(END)$(GREEN)# $(TEST) #### [RUN] ####$(END)"
+	@./$(TEST)
 
 ### CLEAN ###
 .PHONY : sanitize clean fclean re

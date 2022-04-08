@@ -54,8 +54,9 @@ typedef struct s_mnode {
   unsigned int small_smax;
 } t_mnode;
 
-t_mnode g_mnode = {NULL, 0, 0};
+extern t_mnode g_mnode;
 
 void *malloc(size_t size);
+void show_alloc_mem();
 
 #endif

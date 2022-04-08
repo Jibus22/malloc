@@ -6,7 +6,7 @@
 #    By: jle-corr <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/11 04:58:03 by jle-corr          #+#    #+#              #
-#    Updated: 2022/04/06 12:32:27 by jle-corr         ###   ########.fr        #
+#    Updated: 2022/04/06 12:34:41 by jle-corr         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,7 +49,7 @@ message :
 	@echo "\n\033[1;36mBuilding $(NAME) objects\033[0m"
 
 .PHONY : clean
-clean : $(OBJ)
+clean :
 	@rm -rf $(OBJ)
 	@echo "\033[1;33m$(NAME) objects removed.\033[0m"
 

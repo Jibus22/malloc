@@ -9,16 +9,18 @@
 
 #define EXPORT __attribute__((visibility("default")))
 
-void _mnode_init() {
+t_mnode g_mnode = {NULL, 0, 0};
+
+static void _mnode_init() {
   int pagesize = getpagesize();
 
   g_mnode.tiny_smax =
-      (TINY_FACTOR * (pagesize - sizeof(t_zone) / 100) - sizeof(t_alloc));
+      (TINY_FACTOR * ((pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc));
   g_mnode.small_smax =
-      (SMALL_FACTOR * (pagesize - sizeof(t_zone) / 100) - sizeof(t_alloc));
+      (SMALL_FACTOR * ((pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc));
 }
 
-void _setAllocType(size_t size, e_zone *alloc_type) {
+static void _setAllocType(size_t size, e_zone *alloc_type) {
   *alloc_type =
       (0 * (size <= g_mnode.tiny_smax)) +
       (1 * (size > g_mnode.tiny_smax) && (size <= g_mnode.small_smax)) +
@@ -32,7 +34,7 @@ void _setAllocType(size_t size, e_zone *alloc_type) {
  * begining. Its address is returned.
  */
 
-void *_create_zone(size_t size, e_zone alloc_type) {
+static void *_create_zone(size_t size, e_zone alloc_type) {
   void *addr;
   int pagesize = getpagesize(),
       zonesize = ((pagesize * TINY_FACTOR) * (alloc_type == tiny)) +
@@ -40,7 +42,12 @@ void *_create_zone(size_t size, e_zone alloc_type) {
                  (size * (alloc_type == large));
   t_zone new_zone = {NULL, alloc_type, zonesize - sizeof(t_zone)};
 
-  addr = mmap(NULL, zonesize, PROT_READ | PROT_WRITE, MAP_ANON, -1, 0);
+  addr = mmap(NULL, zonesize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE,
+              -1, 0);
+  printf(
+      "----- create new zone ----- addr: %p - zonesize: %d - alloc_type: %d\n",
+      addr, zonesize, alloc_type);
+  if (addr == MAP_FAILED) return NULL;
   ft_memcpy(addr, &new_zone, sizeof(new_zone));
   return addr;
 }
@@ -50,12 +57,12 @@ void *_create_zone(size_t size, e_zone alloc_type) {
  * enough space inside, or NULL
  */
 
-t_zone *_getZone(size_t size, e_zone alloc_type) {
+static t_zone *_getZone(size_t size, e_zone alloc_type) {
   t_zone *head = g_mnode.zone;
 
   while (head) {
     if (head->type == alloc_type &&
-        (head->vacant_max - sizeof(t_alloc)) >= size)
+        (head->vacant_max >= (size + sizeof(t_alloc))))
       return head;
     head = head->next;
   }
@@ -66,7 +73,7 @@ t_zone *_getZone(size_t size, e_zone alloc_type) {
  * add a new zone to the list pointed by g_mnode.zone
  */
 
-void _addZone(t_zone *zone) {
+static void _addZone(t_zone *zone) {
   t_zone *head = g_mnode.zone;
 
   if (!head) {
@@ -77,14 +84,15 @@ void _addZone(t_zone *zone) {
   head->next = zone;
 }
 
-unsigned int _getZoneSize(const t_zone *zone, size_t size) {
+static unsigned int _getZoneSize(const t_zone *zone, size_t size) {
   return (getpagesize() * TINY_FACTOR * (zone->type == tiny)) +
          (getpagesize() * SMALL_FACTOR * (zone->type == small)) +
          (size * (zone->type == large));
 }
 
-t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next, void *payload,
-                  unsigned int is_free, unsigned int size) {
+static t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next,
+                          void *payload, unsigned int is_free,
+                          unsigned int size) {
   t_alloc setalloc = {prev, next, payload, is_free, size};
 
   ft_memcpy(head, &setalloc, sizeof(*head));
@@ -98,7 +106,7 @@ t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next, void *payload,
  * Returns the newly created t_alloc.
  */
 
-t_alloc *_getAlloc(t_alloc *head, long size, void *end) {
+static t_alloc *_getAlloc(t_alloc *head, long size, void *end) {
   t_alloc *ptr;
 
   if (head->payload != head + 1 || head->prev || head->size < 0)
@@ -117,16 +125,19 @@ t_alloc *_getAlloc(t_alloc *head, long size, void *end) {
     }
     head = head->next;
   }
-  if (head->is_free && (end - head->payload) >= size)
+  if (head->is_free && (end - head->payload) >= size &&
+      head + 1 == head->payload)
     return _setAlloc(head, head->prev, head->next, head + 1, 0, size);
   else if (!(head->is_free) &&
            (end - (void *)((char *)head->payload + head->size +
-                           sizeof(t_alloc))) >= size)
+                           sizeof(t_alloc))) >= size) {
+    ptr = (t_alloc *)((char *)head->payload + head->size);
+    head->next = ptr;
     return _setAlloc(
-        (t_alloc *)((char *)head->payload + head->size), head, NULL,
+        ptr, head, NULL,
         (void *)((char *)head->payload + head->size + sizeof(t_alloc)), 0,
         size);
-  else
+  } else
     return NULL;
 }
 
@@ -136,7 +147,7 @@ t_alloc *_getAlloc(t_alloc *head, long size, void *end) {
  * get updated
  */
 
-void _updateVacantMax(t_zone *zone, char *end) {
+static void _updateVacantMax(t_zone *zone, char *end) {
   t_alloc *head = (t_alloc *)(zone + 1);
   unsigned int new_vacant = 0;
   ptrdiff_t diff;
@@ -145,6 +156,7 @@ void _updateVacantMax(t_zone *zone, char *end) {
     diff = (char *)head->next - ((char *)head->payload + head->size);
     new_vacant =
         (new_vacant * (diff <= new_vacant)) + (diff * (diff > new_vacant));
+    head = head->next;
   }
   diff = end - ((char *)head->payload + head->size);
   new_vacant =
@@ -152,7 +164,7 @@ void _updateVacantMax(t_zone *zone, char *end) {
   zone->vacant_max = new_vacant;
 }
 
-void *_create_client_alloc(t_zone *zone, size_t size) {
+static void *_create_client_alloc(t_zone *zone, size_t size) {
   unsigned int zonesize = _getZoneSize(zone, size);
   t_alloc *head =
       _getAlloc((t_alloc *)(zone + 1), size, (char *)zone + zonesize);
@@ -162,6 +174,7 @@ void *_create_client_alloc(t_zone *zone, size_t size) {
   return head->payload;
 }
 
+EXPORT
 void *malloc(size_t size) {
   t_zone *zone;
   e_zone alloc_type;
@@ -172,8 +185,11 @@ void *malloc(size_t size) {
   zone = _getZone(size, alloc_type);
   if (!zone) {
     zone = _create_zone(size, alloc_type);
+    if (!zone) return NULL;
     _addZone(zone);
   }
   client_alloc = _create_client_alloc(zone, size);
+  printf("zoneaddr: %p - next: %p - type: %d - vacant_max: %d\n    addr: %p",
+         zone, zone->next, zone->type, zone->vacant_max, client_alloc);
   return client_alloc;
 }
