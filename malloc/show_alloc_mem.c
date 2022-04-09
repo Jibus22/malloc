@@ -69,10 +69,8 @@ static void _roam_talloc(t_zone *zone, unsigned int *total) {
   t_alloc *head = (t_alloc *)(zone + 1);
 
   while (head) {
-    if (!head->is_free) {
-      *total += head->size;
-      _print_alloc(head);
-    }
+    *total += head->size;
+    _print_alloc(head);
     head = head->next;
   }
 }

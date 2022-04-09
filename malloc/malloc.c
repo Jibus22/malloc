@@ -40,13 +40,10 @@ static void *_create_zone(size_t size, e_zone alloc_type) {
       zonesize = ((pagesize * TINY_FACTOR) * (alloc_type == tiny)) +
                  ((pagesize * SMALL_FACTOR) * (alloc_type == small)) +
                  (size * (alloc_type == large));
-  t_zone new_zone = {NULL, alloc_type, zonesize - sizeof(t_zone)};
+  t_zone new_zone = {NULL, NULL, NULL, alloc_type, zonesize - sizeof(t_zone)};
 
   addr = mmap(NULL, zonesize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE,
               -1, 0);
-  printf(
-      "----- create new zone ----- addr: %p - zonesize: %d - alloc_type: %d\n",
-      addr, zonesize, alloc_type);
   if (addr == MAP_FAILED) return NULL;
   ft_memcpy(addr, &new_zone, sizeof(new_zone));
   return addr;
@@ -82,6 +79,7 @@ static void _addZone(t_zone *zone) {
   }
   while (head->next) head = head->next;
   head->next = zone;
+  zone->prev = head;
 }
 
 static unsigned int _getZoneSize(const t_zone *zone, size_t size) {
@@ -91,9 +89,8 @@ static unsigned int _getZoneSize(const t_zone *zone, size_t size) {
 }
 
 static t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next,
-                          void *payload, unsigned int is_free,
                           unsigned int size) {
-  t_alloc setalloc = {prev, next, payload, is_free, size};
+  t_alloc setalloc = {prev, next, (char *)(head + 1), 0, size};
 
   ft_memcpy(head, &setalloc, sizeof(*head));
   return head;
@@ -106,39 +103,36 @@ static t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next,
  * Returns the newly created t_alloc.
  */
 
-static t_alloc *_getAlloc(t_alloc *head, long size, void *end) {
-  t_alloc *ptr;
+static t_alloc *_getAlloc(t_zone *zone, size_t size, void *end) {
+  t_alloc *ptr, *head = zone->start;
 
-  if (head->payload != head + 1 || head->prev || head->size < 0)
-    return _setAlloc(head, NULL, NULL, head + 1, 0, size);
+  if (!head) {
+    ptr = _setAlloc((t_alloc *)(zone + 1), NULL, NULL, size);
+    zone->start = ptr;
+    return ptr;
+  }
+  if ((char *)head > size + (char *)(zone + 1)) {
+    ptr = _setAlloc((t_alloc *)(zone + 1), NULL, head, size);
+    zone->start = ptr;
+    head->prev = ptr;
+    return ptr;
+  }
   while (head->next) {
-    if (head->is_free && ((void *)head->next - head->payload) >= size)
-      return _setAlloc(head, head->prev, head->next, head + 1, 0, size);
-    if (((char *)head->next - ((char *)(head + 1) + head->size)) >= size) {
-      ptr = _setAlloc(
-          (t_alloc *)((char *)head->payload + head->size), head, head->next,
-          (void *)((char *)head->payload + head->size + sizeof(t_alloc)), 0,
-          size);
-      head->next = ptr;
+    if (((char *)head->next > size + (head->payload + head->size))) {
+      ptr = _setAlloc((t_alloc *)(head->payload + head->size), head, head->next,
+                      size);
       head->next->prev = ptr;
+      head->next = ptr;
       return ptr;
     }
     head = head->next;
   }
-  if (head->is_free && (end - head->payload) >= size &&
-      head + 1 == head->payload)
-    return _setAlloc(head, head->prev, head->next, head + 1, 0, size);
-  else if (!(head->is_free) &&
-           (end - (void *)((char *)head->payload + head->size +
-                           sizeof(t_alloc))) >= size) {
-    ptr = (t_alloc *)((char *)head->payload + head->size);
+  if (((char *)end >= size + (head->payload + head->size + sizeof(t_alloc)))) {
+    ptr = (t_alloc *)(head->payload + head->size);
     head->next = ptr;
-    return _setAlloc(
-        ptr, head, NULL,
-        (void *)((char *)head->payload + head->size + sizeof(t_alloc)), 0,
-        size);
-  } else
-    return NULL;
+    return _setAlloc(ptr, head, NULL, size);
+  }
+  return NULL;
 }
 
 /**
@@ -147,13 +141,13 @@ static t_alloc *_getAlloc(t_alloc *head, long size, void *end) {
  * get updated
  */
 
-static void _updateVacantMax(t_zone *zone, char *end) {
-  t_alloc *head = (t_alloc *)(zone + 1);
+void _updateVacantMax(t_zone *zone, char *end) {
+  t_alloc *head = zone->start;
   unsigned int new_vacant = 0;
   ptrdiff_t diff;
 
   while (head->next) {
-    diff = (char *)head->next - ((char *)head->payload + head->size);
+    diff = (char *)head->next - (head->payload + head->size);
     new_vacant =
         (new_vacant * (diff <= new_vacant)) + (diff * (diff > new_vacant));
     head = head->next;
@@ -166,8 +160,7 @@ static void _updateVacantMax(t_zone *zone, char *end) {
 
 static void *_create_client_alloc(t_zone *zone, size_t size) {
   unsigned int zonesize = _getZoneSize(zone, size);
-  t_alloc *head =
-      _getAlloc((t_alloc *)(zone + 1), size, (char *)zone + zonesize);
+  t_alloc *head = _getAlloc(zone, size, (char *)zone + zonesize);
 
   if (!head) return NULL;
   _updateVacantMax(zone, (char *)zone + zonesize);
@@ -189,7 +182,5 @@ void *malloc(size_t size) {
     _addZone(zone);
   }
   client_alloc = _create_client_alloc(zone, size);
-  printf("zoneaddr: %p - next: %p - type: %d - vacant_max: %d\n    addr: %p",
-         zone, zone->next, zone->type, zone->vacant_max, client_alloc);
   return client_alloc;
 }

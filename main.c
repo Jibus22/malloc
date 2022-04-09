@@ -8,15 +8,21 @@ int main() {
   int i = 0;
 
   addr = malloc(100);
-  printf(" - i: %d\n", i);
   addr = malloc(42);
-  printf(" - i: %d\n", i);
   addr = malloc(4);
-  printf(" - i: %d\n", i);
-  for (i = 0; i < 120; i++) {
+  for (i = 0; i < 120; i++)
     addr = malloc(42);
-    printf(" - i: %d\n", i);
-  }
+  for (i = 0; i < 220; i++)
+    addr = malloc(142);
+  for (i = 0; i < 12; i++) 
+    addr = malloc(3000);
+  for (i = 0; i < 120; i++)
+    addr = malloc(45);
+  for (i = 0; i < 120; i++)
+    addr = malloc(30);
+  for (i = 0; i < 220; i++)
+    addr = malloc(290);
+  printf("SHOW MEM\n");
   show_alloc_mem();
   return 0;
 }
