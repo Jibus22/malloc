@@ -4,8 +4,6 @@
 #include "libft.h"
 #include "malloc.h"
 
-#define EXPORT __attribute__((visibility("default")))
-
 static void _concat_address(char *dst, unsigned long int n) {
   unsigned long int e;
   short int res;
@@ -66,7 +64,7 @@ static void _print_total(unsigned int total) {
 }
 
 static void _roam_talloc(t_zone *zone, unsigned int *total) {
-  t_alloc *head = (t_alloc *)(zone + 1);
+  t_alloc *head = zone->start;
 
   while (head) {
     *total += head->size;
@@ -75,29 +73,30 @@ static void _roam_talloc(t_zone *zone, unsigned int *total) {
   }
 }
 
-static t_zone *_get_ascending_zone() {
+static t_zone *_get_ascending_zone(unsigned long *min) {
   t_zone *zone = g_mnode.zone;
-  static unsigned long min;
   unsigned long current, supp = UINTMAX_MAX;
 
   while (zone) {
     current = (unsigned long)zone;
-    if (current > min && current < supp) supp = current;
+    if (current > *min && current < supp) supp = current;
     zone = zone->next;
   }
-  min = supp;
-  return ((t_zone *)(min * (min != UINTMAX_MAX)));
+  *min = supp;
+  return ((t_zone *)(*min * (*min != UINTMAX_MAX)));
 }
 
 EXPORT
 void show_alloc_mem() {
   unsigned int total = 0;
-  t_zone *zone = _get_ascending_zone();
+  unsigned long min = 0;
+  t_zone *zone = _get_ascending_zone(&min);
 
+  write(2, "### __ ###\n", 12);
   while (zone) {
     _print_zone((void *)zone, zone->type);
     _roam_talloc(zone, &total);
-    zone = _get_ascending_zone();
+    zone = _get_ascending_zone(&min);
   }
   _print_total(total);
 }

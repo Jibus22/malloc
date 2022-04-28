@@ -7,11 +7,9 @@
 
 #include "libft.h"
 
-#define EXPORT __attribute__((visibility("default")))
-
 t_mnode g_mnode = {NULL, 0, 0};
 
-static void _mnode_init() {
+void _mnode_init() {
   int pagesize = getpagesize();
 
   g_mnode.tiny_smax =
@@ -20,7 +18,7 @@ static void _mnode_init() {
       (SMALL_FACTOR * ((pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc));
 }
 
-static void _setAllocType(size_t size, e_zone *alloc_type) {
+void _setAllocType(size_t size, e_zone *alloc_type) {
   *alloc_type =
       (0 * (size <= g_mnode.tiny_smax)) +
       (1 * (size > g_mnode.tiny_smax) && (size <= g_mnode.small_smax)) +
@@ -39,7 +37,12 @@ static void *_create_zone(size_t size, e_zone alloc_type) {
   int pagesize = getpagesize(),
       zonesize = ((pagesize * TINY_FACTOR) * (alloc_type == tiny)) +
                  ((pagesize * SMALL_FACTOR) * (alloc_type == small)) +
-                 (size * (alloc_type == large));
+                 ((((size + sizeof(t_zone) + sizeof(t_alloc)) + 15) & ~15) *
+                  (alloc_type == large));
+  /* zonesize: if size belongs to large block, we add size of zone and alloc */
+  /* dope vectors then extends the size with bitwise operation to make it a */
+  /* multiple of 16 so it's 16 bits aligned */
+
   t_zone new_zone = {NULL, NULL, NULL, alloc_type, zonesize - sizeof(t_zone)};
 
   addr = mmap(NULL, zonesize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE,
@@ -82,10 +85,18 @@ static void _addZone(t_zone *zone) {
   zone->prev = head;
 }
 
-static unsigned int _getZoneSize(const t_zone *zone, size_t size) {
+/**
+ * return the full size of zone, from start to the end, without substracting any
+ * dope vector
+ */
+
+unsigned int _getZoneSize(const t_zone *zone) {
   return (getpagesize() * TINY_FACTOR * (zone->type == tiny)) +
          (getpagesize() * SMALL_FACTOR * (zone->type == small)) +
-         (size * (zone->type == large));
+         (((((t_alloc *)(zone + 1))->size + sizeof(t_zone) + sizeof(t_alloc) +
+            15) &
+           ~15) *
+          (zone->type == large));
 }
 
 static t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next,
@@ -98,7 +109,7 @@ static t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next,
 
 /**
  * roam t_zone to find a place where there is enough space to set a new t_alloc,
- *  then set the new t_alloc as well as the previous and next t_alloc so the
+ *  then set the new t_alloc and update the previous and next t_alloc so the
  * linked list of t_alloc stays consistent.
  * Returns the newly created t_alloc.
  */
@@ -111,14 +122,15 @@ static t_alloc *_getAlloc(t_zone *zone, size_t size, void *end) {
     zone->start = ptr;
     return ptr;
   }
-  if ((char *)head > size + (char *)(zone + 1)) {
+  if ((char *)head > size + (char *)(zone + 1) + sizeof(t_alloc)) {
     ptr = _setAlloc((t_alloc *)(zone + 1), NULL, head, size);
     zone->start = ptr;
     head->prev = ptr;
     return ptr;
   }
   while (head->next) {
-    if (((char *)head->next > size + (head->payload + head->size))) {
+    if (((char *)head->next >
+         (head->payload + head->size) + size + sizeof(t_alloc))) {
       ptr = _setAlloc((t_alloc *)(head->payload + head->size), head, head->next,
                       size);
       head->next->prev = ptr;
@@ -146,6 +158,10 @@ void _updateVacantMax(t_zone *zone, char *end) {
   unsigned int new_vacant = 0;
   ptrdiff_t diff;
 
+  if (!head) {
+    zone->vacant_max = _getZoneSize(zone) - sizeof(t_zone);
+    return;
+  }
   while (head->next) {
     diff = (char *)head->next - (head->payload + head->size);
     new_vacant =
@@ -159,7 +175,7 @@ void _updateVacantMax(t_zone *zone, char *end) {
 }
 
 static void *_create_client_alloc(t_zone *zone, size_t size) {
-  unsigned int zonesize = _getZoneSize(zone, size);
+  unsigned int zonesize = _getZoneSize(zone);
   t_alloc *head = _getAlloc(zone, size, (char *)zone + zonesize);
 
   if (!head) return NULL;
@@ -173,6 +189,8 @@ void *malloc(size_t size) {
   e_zone alloc_type;
   void *client_alloc;
 
+  show_alloc_mem();
+  fflush(stdout);
   if (!g_mnode.tiny_smax) _mnode_init();
   _setAllocType(size, &alloc_type);
   zone = _getZone(size, alloc_type);

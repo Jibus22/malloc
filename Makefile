@@ -11,14 +11,15 @@ endif
 
 ##### binaries #####
 NAME = libft_malloc_$(HOSTTYPE).so
-TEST = test.out
+D_NAME = test.out
 
-##### SRC & OBJ PATH #####
+##### PATH #####
 SRCPATH = ./malloc
 OBJPATH = $(SRCPATH)/obj
+LIBFTPATH = ./libft
+TESTPATH = ./test
 
 ##### LIB #####
-LIBFTPATH = ./libft
 LIBFT = $(LIBFTPATH)/libft.a
 LIBSD = -lbsd
 LIBMALLOC = ft_malloc_$(HOSTTYPE)
@@ -47,8 +48,11 @@ else
 	CCFLAGS += -D LINUX
 endif
 
+##### D_SRCS #####
+D_SRCS = $(addprefix $(TESTPATH)/, main.c)
+
 ##### SRCS #####
-SRCS = $(addprefix $(SRCPATH)/, malloc.c show_alloc_mem.c free.c)
+SRCS = $(addprefix $(SRCPATH)/, malloc.c show_alloc_mem.c free.c realloc.c)
 
 OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 
@@ -74,12 +78,16 @@ $(OBJPATH)/%.o : $(SRCPATH)/%.c $(HEADERS)
 	$(CC) $(CCFLAGS) $(INC) -c $< -o $@
 
 test: all
-	$(CC) $(CCTESTFLAGS) $(INC) main.c -L. -l$(LIBMALLOC) -o $(TEST)
-	@echo "\n$(END)$(GREEN)# $(TEST) is built #$(END)"
+	$(CC) $(CCTESTFLAGS) $(INC) $(D_SRCS) -L. -l$(LIBMALLOC) -o $(TESTPATH)/$(D_NAME)
+	@echo "\n$(END)$(GREEN)# $(D_NAME) is built #$(END)"
 
 runtest: test
-	@echo "\n$(END)$(GREEN)# $(TEST) #### [RUN] ####$(END)"
-	@./$(TEST)
+	@echo "\n$(END)$(GREEN)# $(D_NAME) #### [RUN] ####$(END)"
+	@./$(TESTPATH)/$(D_NAME)
+
+help:
+	@echo "  test:    build test.out\n\
+	  runtest: build test.out and run it"
 
 ### CLEAN ###
 .PHONY : sanitize clean fclean re
@@ -92,6 +100,7 @@ clean :
 fclean : clean
 	@echo "$(END)$(RED)\n# removing $(NAME) #$(END)$(GREY)"
 	@rm -f $(NAME)
+	@rm -f $(TESTPATH)/$(D_NAME)
 	@make fclean -C $(LIBFTPATH)
 
 re : fclean all

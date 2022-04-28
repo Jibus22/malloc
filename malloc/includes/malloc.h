@@ -19,6 +19,8 @@
 /* 10 gives max small size as 376 */
 #define SMALL_FACTOR 10
 
+#define EXPORT __attribute__((visibility("default")))
+
 #include <stddef.h>
 
 typedef enum zone { tiny, small, large } e_zone;
@@ -58,9 +60,14 @@ typedef struct s_mnode {
 extern t_mnode g_mnode;
 
 void *malloc(size_t size);
-void show_alloc_mem();
+void *realloc(void *ptr, size_t size);
 void free(void *ptr);
+void show_alloc_mem();
 
+void _mnode_init();
+void _setAllocType(size_t size, e_zone *alloc_type);
+unsigned int _getZoneSize(const t_zone *zone);
 void _updateVacantMax(t_zone *zone, char *end);
+void _optional_abort(const char *msg);
 
 #endif
