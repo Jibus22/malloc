@@ -1,0 +1,26 @@
+cd
+pwd
+cd $NOTHING
+cd $NOTHINGG ~
+cd $NOTHING $MORENOTHING ..
+cd cocucou
+cd notworking
+cd .
+pwd
+cd ~
+pwd
+pwd .
+pwd ..
+cd ../Desktop
+pwd
+cd ..
+pwd
+cd ..
+pwd
+cd --
+pwd
+cd -
+cd -- -
+cd -- --
+cd -- -l
+cd --l

@@ -1,0 +1,33 @@
+echo ";;;;;"
+echo $/
+echo $?
+echo $0
+echo $1
+echo $8
+echo $10
+echo $42
+echo $!
+echo 'how are you'
+echo '$PWD'
+echo hello there
+"echo" hello there
+echo "hello there"
+echo $USER""
+echo $0
+echo $USER "$USER" '$USER'
+echojhdfjhjdkh
+ echo
+echo
+ echo hoi
+echo '$USER'
+echo '"\$USER"'
+echo "hello""coucou"
+echo hello
+echo bash
+echo $a5aap
+echo $USER9582309582529
+echo $
+echo $USER
+echo "$"
+echo "$USER"
+echo $hello

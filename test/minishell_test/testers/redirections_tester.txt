@@ -1,0 +1,25 @@
+echo "WORKING"
+echo hello | echo hoi > y1 >y2 ; cat -e
+echo hello | echo hoi > y1 >y2 | cat -e
+echo hello | echo poep >x1 >x2
+echo hello ; echo poep >x1 >x2
+echo hello >file1 >file2
+echo hello >file1 >file2 coucou
+echo hello >file1 >file2 >>file3 coucou oi
+echo hello <file1 >file2
+echo hello >x1 >x2 >x3 | echo hoi
+echo hello >x1 >x2 >x3 ; echo hoi
+echo HELLO THERE > test1 | cat test1
+echo > word.txt count me ; wc word.txt
+echo > "hardesttest.txt"
+echo adding stuff >> working.txt
+echo more stuff >> working.txt
+echo > working.txt
+echo dit > test1 hi > test2 oi > test3
+echo dit > test1 hi > test2 oi > test3 > test4
+echo > fillee ; echo oi >> fillee "coucou" ; echo clear > "fillee" ; echo test > working.txt ; echo > newfile.txt hardertest
+echo "NOT WORKING"
+cat < test4
+< test4 cat
+> newfile ; > working.txt
+< working.txt

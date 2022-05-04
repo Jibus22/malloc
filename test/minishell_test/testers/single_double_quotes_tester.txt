@@ -1,0 +1,31 @@
+echo "WORKING"
+awk '{ print }' /etc/passwd
+echo 'how are you'
+echo '$PWD'
+"echo" hello there
+echo $USER""
+echo $USER "$USER" '$USER'
+echo hello 'cou\"cou' oi
+echo hello 'cou\'cou'' oi
+echo hello""
+echo "hoi$USERcoucou"
+echo "$USER"
+echo "'\$USER'"
+echo '$USER'$USER
+echo hello"1234"coucou"$USER"'/$USER'"/$USER"'poep''poep2'"coucou"'ellende'END
+echo "$USER"'/$USER'
+echo 'poep''poep2'"coucou"'ellende'END
+echo 'poep2'"coucou"'ellende'
+echo 123"hello$"456
+echo $hello"poep"
+echo /$"123$USER"
+echo hello$"USER"
+echo hello$"POEP"
+echo hello$'USER'
+echo $hello"poep"
+echo "123\'456"
+echo "NOT WORKING"
+echo '"\$USER"'
+echo \"test\"
+echo "123\"456"
+echo '$USER'$USER\$USER/"$USER"

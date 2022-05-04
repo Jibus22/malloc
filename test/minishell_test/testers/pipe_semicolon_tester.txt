@@ -1,0 +1,19 @@
+echo "WORKING"
+ls > x1 ; cat x1 | grep main
+echo "hello | this is some stuff > touch this file" | grep more
+echo hello there | echo cou cou
+echo | poep
+echo hello | echo hoi
+echo hello | echo hoi | cat
+export | grep -e "HOME="
+cat | cat -e | cat
+export | grep -e "PWD="
+cat x1 | grep Makefile
+echo hi ; echo ; echo ; echo ; export ; env ; echo ; echo ; echo ; echo working ; echo $PWD
+echo $PWD ; echo $HOME ; echo "$PWD" ; echo '$PWD' ; echo "$HOME"
+echo hello there ; echo cou cou
+cd .. ;pwd;/bin/ls;cd .. ;      pwd    ;/bin/ls;     cd notworking;     cd .
+echo "NOT WORKING"
+echo | cd .. | pwd
+cat working.txt | grep stuff | echo tim
+ls filedoesnotexist | grep notme | echo "TEST"

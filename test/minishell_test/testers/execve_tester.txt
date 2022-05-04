@@ -1,0 +1,11 @@
+ls
+"ls"
+/binn/ls
+ls -la
+/bin/ls -la
+/bin/ls
+/bin/ls doesnotexist
+/bin/chmod
+/bin/pwd
+/sbin/ip address
+test

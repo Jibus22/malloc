@@ -1,0 +1,16 @@
+echo $USER $123456789USER $USER123456789
+echo $USER $USER9999 $USER8888 $USER7777
+echo $USER $USER9999 $USER8888 $USER7777 "$USER"
+echo $PWD; echo $OLDPWD; cd ''; pwd; echo $PWD; echo $OLDPWD
+echo $PWD; echo $OLDPWD; cd '' ''; pwd; echo $PWD; echo $OLDPWD
+echo $PWD; echo $OLDPWD; cd '' '' ''; pwd; echo $PWD; echo $OLDPWD
+echo $PWD; echo $OLDPWD; cd //; pwd; echo $PWD; echo $OLDPWD
+echo $PWD; echo $OLDPWD; cd //home; pwd; echo $PWD; echo $OLDPWD
+
+cd // ; pwd
+cd '//' ; pwd
+cd '/////' 2>/dev/null ; pwd
+cd '/etc' ; pwd
+cd '/var' ; pwd
+cd .. ; unset OLDPWD ; cd $OLDPWD ; pwd
+cd .. ; unset PWD ; cd $PWD ; pwd

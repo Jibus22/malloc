@@ -84,6 +84,12 @@ home_tests: all
 regular_tests: all
 	@sh test/correction/correction.sh
 
+minishell: all
+	@rm -f test/minishell/$(NAME)
+	@cp $(NAME) test/minishell/
+	@make re -C test/minishell/
+	@./test/minishell/./minishell
+
 help:
 	@echo "----- RULES: -----\n\n"\
 		"      home_tests:    run my_tests.sh in test/\n"\

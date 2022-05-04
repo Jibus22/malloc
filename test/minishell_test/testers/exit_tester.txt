@@ -1,0 +1,32 @@
+exit a aa a
+echo $? "\n"
+exit 123 123 123
+echo $? "\n"
+exit 1234
+echo $? "\n"
+exit
+echo $? "\n"
+exit 99
+echo $? "\n"
+exit 3 a
+echo $? "\n"
+exit 55 99
+echo $? "\n"
+exit -1
+echo $? "\n"
+exit -312
+echo $? "\n"
+exit +257
+echo $? "\n"
+exit l l
+echo $? "\n"
+exit 123 1
+echo $? "\n"
+exit 1a1 1
+echo $? "\n"
+exit a1 1
+echo $? "\n"
+exit a1
+echo $? "\n"
+exit a 1
+echo $? "\n"
