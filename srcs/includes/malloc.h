@@ -5,19 +5,33 @@
 ** each zone must be able to hold at least 100 allocations so we have to
 ** consider the max sized block of each zone.
 **
-** Calculus: (x * (4096 - 16) / 100) - 32
+** Calculus: (x * (4096 - 32) / 100) - 32
 **
 ** x is the arbitrary factor we choose.
 ** 32 is the size of t_alloc metadata in Bytes (for each allocations).
-** 16 is the size of t_zone metadata in Bytes (for each zone).
+** 32 is the size of t_zone metadata in Bytes (for each zone).
 ** 4096 is the value of getpagesize() on my system. Values are hard-coded here
 ** for the sake of the example, but not into code.
+**
+** 2 gives max alloc size as 49.     (we can have 100 allocations of 48B)
+** 10 gives max alloc size as 376.
+** 50 gives max alloc size as 2000.
+** 100 gives max alloc size as 4032.
+** 150 gives max alloc size as 6064.
+** 200 gives max alloc size as 8096.
+** 
+** a large memory block is automatically rounded to the higher multiple of
+** getpagesize() - often = 4096 - so it makes sense to divide the capacity of
+** these blocks as a large block doesn't waste to much memory.
+** For example if small size limit is 376 and we ask 1000,
+** it would waste 3096.(x3)
+** But if small size limit is 8000, it would left nothing. And if 10.000 is
+** asked, it would left 2288(x1/5). 8193 would left 4095(x1/2), this is a
+** matter of proportion.
 */
 
-/* 2 gives max tiny size as 49 */
-#define TINY_FACTOR 2
-/* 10 gives max small size as 376 */
-#define SMALL_FACTOR 10
+#define TINY_FACTOR 10
+#define SMALL_FACTOR 150
 
 #define EXPORT __attribute__((visibility("default")))
 
@@ -66,8 +80,8 @@ void show_alloc_mem();
 
 void _mnode_init();
 void _setAllocType(size_t size, e_zone *alloc_type);
-unsigned int _getZoneSize(const t_zone *zone);
-void _updateVacantMax(t_zone *zone, char *end);
+size_t _getZoneSize(e_zone alloc_type, size_t size);
+void _updateVacantMax(t_zone *zone, size_t zonesize);
 void _optional_abort(const char *msg);
 
 #endif

@@ -92,7 +92,7 @@ void show_alloc_mem() {
   unsigned long min = 0;
   t_zone *zone = _get_ascending_zone(&min);
 
-  write(2, "### __ ###\n", 12);
+  write(1, "### __ ###\n", 12);
   while (zone) {
     _print_zone((void *)zone, zone->type);
     _roam_talloc(zone, &total);

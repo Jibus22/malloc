@@ -9,19 +9,19 @@ ifeq ($(HOSTTYPE),)
 HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
 
-##### binaries #####
+##### NAMES #####
 NAME = libft_malloc_$(HOSTTYPE).so
+L_NAME = libft_malloc.so
 D_NAME = test.out
 
 ##### PATH #####
-SRCPATH = ./malloc
+SRCPATH = ./srcs
 OBJPATH = $(SRCPATH)/obj
 LIBFTPATH = ./libft
 TESTPATH = ./test
 
-##### LIB #####
+##### LIBS #####
 LIBFT = $(LIBFTPATH)/libft.a
-LIBSD = -lbsd
 LIBMALLOC = ft_malloc_$(HOSTTYPE)
 
 ##### INCLUDE #####
@@ -48,9 +48,6 @@ else
 	CCFLAGS += -D LINUX
 endif
 
-##### D_SRCS #####
-D_SRCS = $(addprefix $(TESTPATH)/, main.c)
-
 ##### SRCS #####
 SRCS = $(addprefix $(SRCPATH)/, malloc.c show_alloc_mem.c free.c realloc.c)
 
@@ -59,6 +56,8 @@ OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 
 ### RULES ###
 
+### BUILD ###
+
 all : mk_objdir $(NAME)
 
 
@@ -66,9 +65,10 @@ mk_objdir:
 	@if [ ! -d $(OBJPATH) ]; then mkdir $(OBJPATH); fi
 
 
-$(NAME): $(OBJ) $(LIBFT)
+$(NAME): $(LIBFT) $(OBJ)
 	@echo "\n$(END)$(BLUE)# Making $(NAME) #$(END)$(GREY)"
 	$(CC) -shared -o $@ $(OBJ) $(LIBFT)
+	@ln -sf $@ $(L_NAME)
 	@echo "\n$(END)$(GREEN)# $(NAME) is built #$(END)"
 
 $(LIBFT): 
@@ -77,17 +77,18 @@ $(LIBFT):
 $(OBJPATH)/%.o : $(SRCPATH)/%.c $(HEADERS)
 	$(CC) $(CCFLAGS) $(INC) -c $< -o $@
 
-test: all
-	$(CC) $(CCTESTFLAGS) $(INC) $(D_SRCS) -L. -l$(LIBMALLOC) -o $(TESTPATH)/$(D_NAME)
-	@echo "\n$(END)$(GREEN)# $(D_NAME) is built #$(END)"
+### TEST ###
+home_tests: all
+	@sh test/my_tests.sh
 
-runtest: test
-	@echo "\n$(END)$(GREEN)# $(D_NAME) #### [RUN] ####$(END)"
-	@./$(TESTPATH)/$(D_NAME)
+regular_tests: all
+	@sh test/correction/correction.sh
 
 help:
-	@echo "  test:    build test.out\n\
-	  runtest: build test.out and run it"
+	@echo "----- RULES: -----\n\n"\
+		"      home_tests:    run my_tests.sh in test/\n"\
+		"   regular_tests:    run correction.sh in test/correction/\n"\
+		"-----------------"
 
 ### CLEAN ###
 .PHONY : sanitize clean fclean re
@@ -100,6 +101,7 @@ clean :
 fclean : clean
 	@echo "$(END)$(RED)\n# removing $(NAME) #$(END)$(GREY)"
 	@rm -f $(NAME)
+	@rm -f $(L_NAME)
 	@rm -f $(TESTPATH)/$(D_NAME)
 	@make fclean -C $(LIBFTPATH)
 

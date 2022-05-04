@@ -35,9 +35,10 @@ static bool _is_same_type(size_t size_c, size_t size_n) {
 static char *_realloc(t_zone *zone, void *ptr, size_t size) {
   char *end, *nxt, *new = ptr;
   t_alloc *match = NULL;
+  size_t zonesize;
 
   while (zone) {
-    end = (char *)zone + _getZoneSize(zone);
+    end = (char *)zone + _getZoneSize(zone->type, zone->start->size);
     if (ptr >= (void *)((t_alloc *)(zone + 1) + 1) && (char *)ptr < end) {
       match = _roam_talloc(zone, ptr);
       break;
@@ -45,7 +46,7 @@ static char *_realloc(t_zone *zone, void *ptr, size_t size) {
     zone = zone->next;
   }
   if (!match) {
-    _optional_abort(NULL);
+    _optional_abort("realloc error: pointer being realloc'd was not allocated");
     return new;
   }
   nxt = (char *)(((unsigned long)match->next *
@@ -54,7 +55,8 @@ static char *_realloc(t_zone *zone, void *ptr, size_t size) {
   if (_is_same_type(match->size, size) &&
       (size <= match->size || match->payload + size < nxt)) {
     match->size = size;
-    _updateVacantMax(zone, end);
+    zonesize = _getZoneSize(zone->type, size);
+    _updateVacantMax(zone, zonesize);
   } else {
     new = malloc(size);
     if (new) {
