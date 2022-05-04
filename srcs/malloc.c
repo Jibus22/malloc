@@ -8,6 +8,7 @@
 #include "libft.h"
 
 t_mnode g_mnode = {NULL, 0, 0};
+pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* static void _printShit(const char *msg) { */
 /*   write(1, msg, ft_strlen(msg)); */
@@ -206,7 +207,8 @@ static t_alloc *_getAlloc(t_zone *zone, size_t size, void *end) {
     }
     head = head->next;
   }
-  if (((char *)end >= (char *)(head->payload + head->size + sizeof(t_alloc) + size))) {
+  if (((char *)end >=
+       (char *)(head->payload + head->size + sizeof(t_alloc) + size))) {
     /* _printShit("insert alloc at the end. "); */
     ptr = (t_alloc *)(head->payload + head->size);
     head->next = ptr;
@@ -241,7 +243,9 @@ void _updateVacantMax(t_zone *zone, size_t zonesize) {
     /* if (zone->vacant_max == 53) { */
     /*   if (diff == 35 && i < 1) { */
     /*     i++; */
-    /*     /1* printf("# head: %lX, head->size: %u, head->next: %lX, head->next->size: %u ;#\n", head, head->size, head->next, head->next->size); *1/ */
+    /*     /1* printf("# head: %lX, head->size: %u, head->next: %lX,
+     * head->next->size: %u ;#\n", head, head->size, head->next,
+     * head->next->size); *1/ */
     /*     _print_addr2(head->payload, "head->payload: "); */
     /*     _print_addr2(head->next->payload, "head->next->payload: "); */
     /*   } */
@@ -270,12 +274,16 @@ void *malloc(size_t size) {
   e_zone alloc_type;
   void *client_alloc;
 
+  pthread_mutex_lock(&g_mutex);
   if (!g_mnode.tiny_smax) _mnode_init();
   _setAllocType(size, &alloc_type);
   zone = _getZone(size, alloc_type);
   if (!zone) {
     zone = _create_zone(size, alloc_type);
-    if (!zone) return NULL;
+    if (!zone) {
+      return NULL;
+      pthread_mutex_unlock(&g_mutex);
+    }
     _addZone(zone);
   }
   client_alloc = _create_client_alloc(zone, size);
@@ -283,5 +291,6 @@ void *malloc(size_t size) {
   /* _print_addr(client_alloc, size); */
   /* show_alloc_mem(); */
   /* fflush(stdout); */
+  pthread_mutex_unlock(&g_mutex);
   return client_alloc;
 }

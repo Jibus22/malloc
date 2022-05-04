@@ -37,6 +37,7 @@ static char *_realloc(t_zone *zone, void *ptr, size_t size) {
   t_alloc *match = NULL;
   size_t zonesize;
 
+  pthread_mutex_lock(&g_mutex);
   while (zone) {
     end = (char *)zone + _getZoneSize(zone->type, zone->start->size);
     if (ptr >= (void *)((t_alloc *)(zone + 1) + 1) && (char *)ptr < end) {
@@ -47,6 +48,7 @@ static char *_realloc(t_zone *zone, void *ptr, size_t size) {
   }
   if (!match) {
     _optional_abort("realloc error: pointer being realloc'd was not allocated");
+    pthread_mutex_unlock(&g_mutex);
     return new;
   }
   nxt = (char *)(((unsigned long)match->next *
@@ -58,13 +60,18 @@ static char *_realloc(t_zone *zone, void *ptr, size_t size) {
     zonesize = _getZoneSize(zone->type, size);
     _updateVacantMax(zone, zonesize);
   } else {
+    pthread_mutex_unlock(&g_mutex);
     new = malloc(size);
+    pthread_mutex_lock(&g_mutex);
     if (new) {
       ft_memcpy(new, ptr, match->size);
+      pthread_mutex_unlock(&g_mutex);
       free(ptr);
+      pthread_mutex_lock(&g_mutex);
     } else
       new = ptr;
   }
+  pthread_mutex_unlock(&g_mutex);
   return new;
 }
 

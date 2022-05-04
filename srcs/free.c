@@ -64,10 +64,12 @@ static void _roam_talloc(t_zone *zone, void *ptr) {
         if (munmap(zone, zonesize) == -1)
           _optional_abort("free: munmap failed");
       }
+      pthread_mutex_unlock(&g_mutex);
       return;
     }
     head = head->next;
   }
+  pthread_mutex_unlock(&g_mutex);
   _optional_abort("free: address not found");
   return;
 }
@@ -79,11 +81,13 @@ void free(void *ptr) {
 
   /* _print_addr(ptr); */
   if (!ptr) return;
+  pthread_mutex_lock(&g_mutex);
   while (zone) {
     end = (char *)zone + _getZoneSize(zone->type, zone->start->size);
     if (ptr >= (void *)((t_alloc *)(zone + 1) + 1) && (char *)ptr < end)
       return _roam_talloc(zone, ptr);
     zone = zone->next;
   }
+  pthread_mutex_unlock(&g_mutex);
   if (!zone) _optional_abort("free: zone not found");
 }

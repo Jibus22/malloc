@@ -19,7 +19,7 @@
 ** 100 gives max alloc size as 4032.
 ** 150 gives max alloc size as 6064.
 ** 200 gives max alloc size as 8096.
-** 
+**
 ** a large memory block is automatically rounded to the higher multiple of
 ** getpagesize() - often = 4096 - so it makes sense to divide the capacity of
 ** these blocks as a large block doesn't waste to much memory.
@@ -35,6 +35,7 @@
 
 #define EXPORT __attribute__((visibility("default")))
 
+#include <pthread.h>
 #include <stddef.h>
 
 typedef enum zone { tiny, small, large } e_zone;
@@ -72,6 +73,7 @@ typedef struct s_mnode {
 } t_mnode;
 
 extern t_mnode g_mnode;
+extern pthread_mutex_t g_mutex;
 
 void *malloc(size_t size);
 void *realloc(void *ptr, size_t size);
