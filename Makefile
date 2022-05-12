@@ -49,7 +49,8 @@ else
 endif
 
 ##### SRCS #####
-SRCS = $(addprefix $(SRCPATH)/, malloc.c show_alloc_mem.c free.c realloc.c)
+SRCS = $(addprefix $(SRCPATH)/, malloc.c show_alloc_mem.c free.c realloc.c\
+			 shared.c)
 
 OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 
@@ -77,7 +78,7 @@ $(LIBFT):
 $(OBJPATH)/%.o : $(SRCPATH)/%.c $(HEADERS)
 	$(CC) $(CCFLAGS) $(INC) -c $< -o $@
 
-### TEST ###
+### TESTS ###
 home_tests: all
 	@sh test/my_tests.sh
 
@@ -112,5 +113,5 @@ fclean : clean
 	@rm -f $(TESTPATH)/$(D_NAME)
 	@make fclean -C $(LIBFTPATH)
 
-re : fclean all
-
+re : fclean
+	@$(MAKE)

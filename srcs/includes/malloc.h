@@ -36,14 +36,19 @@
 #define EXPORT __attribute__((visibility("default")))
 
 #include <pthread.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef enum zone { tiny, small, large } e_zone;
 
+typedef enum env {
+  ENV_FTMALLOCERRORABORT = 1 << 0,
+  ENV_FTSCRIBBLE = 1 << 1
+} e_env;
+
 /**
  * allocation's metadata
  */
-
 typedef struct s_alloc {
   struct s_alloc *prev, *next;
   char *payload;
@@ -54,7 +59,6 @@ typedef struct s_alloc {
 /**
  * zone's metadata
  */
-
 typedef struct s_zone {
   struct s_zone *prev, *next;
   t_alloc *start; /* address of first allocation */
@@ -65,7 +69,6 @@ typedef struct s_zone {
 /**
  * main global node for internal malloc, free, (...) memory managment
  */
-
 typedef struct s_mnode {
   t_zone *zone;
   unsigned int tiny_smax;
@@ -84,6 +87,8 @@ void _mnode_init();
 void _setAllocType(size_t size, e_zone *alloc_type);
 size_t _getZoneSize(e_zone alloc_type, size_t size);
 void _updateVacantMax(t_zone *zone, size_t zonesize);
-void _optional_abort(const char *msg);
+void _concat_address(char *dst, unsigned long int n);
+bool _getenv_cached(e_env env);
+void _optional_abort(const char *msg, void *ptr);
 
 #endif

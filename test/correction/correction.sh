@@ -56,6 +56,27 @@ cp $ROOT/$LIBFTMALLOC $TESTPATH
 
 D_NAME="test.out"
 
+prompt () {
+	while true; do
+		read -p "Do you wish to set "$1" ? " yesno
+		case $yesno in
+			[Yy]* )
+				echo "You answered yes"
+				export $1=1
+				break
+				;;
+			[Nn]* )
+				echo "You answered no"
+				break
+				;;
+			* ) echo "Answer either yes or no";;
+		esac
+	done
+}
+
+prompt FtMallocErrorAbort
+prompt FtMallocScribble
+
 echo $BLUE"## RUN TESTS WITH LIBFTMALLOC ##"$END
 for tests in "${TESTS[@]}"
 do echo $RED"run $tests:"$END &&\

@@ -3,7 +3,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <sys/mman.h>
-#include <unistd.h>
 
 #include "libft.h"
 
@@ -73,44 +72,12 @@ pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 /*   fflush(stdout); */
 /* } */
 
-void _mnode_init() {
-  int pagesize = getpagesize();
-
-  g_mnode.tiny_smax =
-      (TINY_FACTOR * ((pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc));
-  g_mnode.small_smax =
-      (SMALL_FACTOR * ((pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc));
-}
-
-void _setAllocType(size_t size, e_zone *alloc_type) {
-  *alloc_type =
-      (0 * (size <= g_mnode.tiny_smax)) +
-      (1 * (size > g_mnode.tiny_smax) && (size <= g_mnode.small_smax)) +
-      (2 * (size > g_mnode.small_smax));
-}
-
-/**
- * return the full size of zone, from start to the end, without substracting any
- * dope vector
- */
-
-size_t _getZoneSize(e_zone alloc_type, size_t large_alloc_size) {
-  int pagesize = getpagesize();
-  return ((pagesize * TINY_FACTOR) * (alloc_type == tiny)) +
-         ((pagesize * SMALL_FACTOR) * (alloc_type == small)) +
-         ((((large_alloc_size + sizeof(t_zone) + sizeof(t_alloc)) +
-            (pagesize - 1)) &
-           ~(pagesize - 1)) *
-          (alloc_type == large));
-}
-
 /**
  * Create a zone of a size corresponding to which had been requested by the
  * client: tiny, small or large.
  * The memory is requested with mmap() and t_zone metadata added to its
  * begining. Its address is returned.
  */
-
 static void *_create_zone(size_t size, e_zone alloc_type) {
   /* _printShit("_create_zone "); */
   void *addr;
@@ -129,7 +96,6 @@ static void *_create_zone(size_t size, e_zone alloc_type) {
  * returns a zone according to the allocation size requested and which has
  * enough space inside, or NULL
  */
-
 static t_zone *_getZone(size_t size, e_zone alloc_type) {
   /* _printShit("_getZone "); */
   t_zone *head = g_mnode.zone;
@@ -147,7 +113,6 @@ static t_zone *_getZone(size_t size, e_zone alloc_type) {
 /**
  * add a new zone to the list pointed by g_mnode.zone
  */
-
 static void _addZone(t_zone *zone) {
   /* _printShit("_addZone "); */
   t_zone *head = g_mnode.zone;
@@ -166,6 +131,7 @@ static t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next,
   t_alloc setalloc = {prev, next, (char *)(head + 1), 0, size};
 
   ft_memcpy(head, &setalloc, sizeof(*head));
+  if (_getenv_cached(ENV_FTSCRIBBLE)) ft_memset(head + 1, 0xaa, size);
   return head;
 }
 
@@ -175,7 +141,6 @@ static t_alloc *_setAlloc(t_alloc *head, t_alloc *prev, t_alloc *next,
  * linked list of t_alloc stays consistent.
  * Returns the newly created t_alloc.
  */
-
 static t_alloc *_getAlloc(t_zone *zone, size_t size, void *end) {
   /* _printShit("_getAlloc "); */
   /* _print_zone(zone); */
@@ -216,46 +181,6 @@ static t_alloc *_getAlloc(t_zone *zone, size_t size, void *end) {
   }
   /* _printShit("insert nothing. "); */
   return NULL;
-}
-
-/**
- * roam the t_zone to calculate space into each t_alloc and find and sets the
- * biggest free memory area so that the vacant_max data of the current zone
- * get updated.
- * zonesize must be the true zonesize given by _getZoneSize() with the size of
- * a block.
- */
-
-void _updateVacantMax(t_zone *zone, size_t zonesize) {
-  t_alloc *head = zone->start;
-  unsigned int new_vacant = 0;
-  ptrdiff_t diff;
-  /* int i = 0; */
-
-  if (!head) {
-    zone->vacant_max = zonesize - sizeof(t_zone);
-    return;
-  }
-  while (head->next) {
-    diff = ((char *)head->next) - ((char *)(head->payload + head->size));
-    new_vacant =
-        (new_vacant * (diff <= new_vacant)) + (diff * (diff > new_vacant));
-    /* if (zone->vacant_max == 53) { */
-    /*   if (diff == 35 && i < 1) { */
-    /*     i++; */
-    /*     /1* printf("# head: %lX, head->size: %u, head->next: %lX,
-     * head->next->size: %u ;#\n", head, head->size, head->next,
-     * head->next->size); *1/ */
-    /*     _print_addr2(head->payload, "head->payload: "); */
-    /*     _print_addr2(head->next->payload, "head->next->payload: "); */
-    /*   } */
-    /* } */
-    head = head->next;
-  }
-  diff = ((char *)zone + zonesize) - ((char *)head->payload + head->size);
-  new_vacant =
-      (new_vacant * (diff <= new_vacant)) + (diff * (diff > new_vacant));
-  zone->vacant_max = new_vacant;
 }
 
 static void *_create_client_alloc(t_zone *zone, size_t size) {

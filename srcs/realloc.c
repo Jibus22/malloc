@@ -1,5 +1,3 @@
-#include <stdbool.h>
-#include <stddef.h>
 #include <stdio.h>
 
 #include "libft.h"
@@ -24,18 +22,10 @@ static bool _is_same_type(size_t size_c, size_t size_n) {
   return alloc_type_c == alloc_type_n;
 }
 
-/* trouver la zone où l'adresse match
- * trouver l'allocation correspondante
- * si size < curr_size il suffit de changer la size dand t_alloc et recalculer
- * vacant_max
- * autrement regarder si il y a de la place pour rajouter la size là où c'est
- * déjà alloué ou bien allouer ailleur avec un malloc des familles (si ça fail
- * on garde l'ancienne alloc, autrement ensuite on free l'ancienne alloc)
- */
 static char *_realloc(t_zone *zone, void *ptr, size_t size) {
   char *end, *nxt, *new = ptr;
   t_alloc *match = NULL;
-  size_t zonesize;
+  size_t zonesize, matchsize;
 
   pthread_mutex_lock(&g_mutex);
   while (zone) {
@@ -47,7 +37,7 @@ static char *_realloc(t_zone *zone, void *ptr, size_t size) {
     zone = zone->next;
   }
   if (!match) {
-    _optional_abort("realloc error: pointer being realloc'd was not allocated");
+    _optional_abort("pointer being realloc'd was not allocated", ptr);
     pthread_mutex_unlock(&g_mutex);
     return new;
   }
@@ -55,18 +45,21 @@ static char *_realloc(t_zone *zone, void *ptr, size_t size) {
                   (unsigned long)(match->next != NULL)) +
                  ((unsigned long)end * (unsigned long)(!match->next)));
   if (_is_same_type(match->size, size) &&
-      (size <= match->size || match->payload + size < nxt)) {
+      (size <= match->size && match->payload + size < nxt)) {
+    if (_getenv_cached(ENV_FTSCRIBBLE))
+      ft_memset(match->payload + size, 0x55, match->size - size);
     match->size = size;
     zonesize = _getZoneSize(zone->type, size);
     _updateVacantMax(zone, zonesize);
   } else {
+    matchsize = match->size;
     pthread_mutex_unlock(&g_mutex);
     new = malloc(size);
     pthread_mutex_lock(&g_mutex);
     if (new) {
-      ft_memcpy(new, ptr, match->size);
+      ft_memcpy(new, ptr, matchsize);
       pthread_mutex_unlock(&g_mutex);
-      free(ptr);
+      if (new != ptr) free(ptr);
       pthread_mutex_lock(&g_mutex);
     } else
       new = ptr;

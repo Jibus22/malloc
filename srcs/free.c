@@ -6,7 +6,8 @@
 #include "malloc.h"
 
 /* void _printZone(t_zone *zone) { */
-/*   printf("type: %d, vacant_max: %u, start: %p\n", zone->type, zone->vacant_max, zone->start); */
+/*   printf("type: %d, vacant_max: %u, start: %p\n", zone->type,
+ * zone->vacant_max, zone->start); */
 /*   fflush(stdout); */
 /* } */
 
@@ -36,11 +37,6 @@
 /*   fflush(stdout); */
 /* } */
 
-void _optional_abort(const char *msg) {
-  printf("--- optionnal_abort ---|%s|\n", msg);
-  fflush(stdout);
-}
-
 static void _roam_talloc(t_zone *zone, void *ptr) {
   t_alloc *head = zone->start;
   size_t zonesize = _getZoneSize(zone->type, zone->start->size);
@@ -53,6 +49,8 @@ static void _roam_talloc(t_zone *zone, void *ptr) {
       else
         zone->start = head->next;
       if (head->next) head->next->prev = head->prev;
+      if (_getenv_cached(ENV_FTSCRIBBLE))
+        ft_memset(head, 0x55, sizeof(t_alloc) + head->size);
       _updateVacantMax(zone, zonesize);
       if (zone->vacant_max == zonesize - sizeof(t_zone)) {
         /* update t_zone linked list */
@@ -62,7 +60,7 @@ static void _roam_talloc(t_zone *zone, void *ptr) {
           g_mnode.zone = zone->next;
         if (zone->next) zone->next->prev = zone->prev;
         if (munmap(zone, zonesize) == -1)
-          _optional_abort("free: munmap failed");
+          _optional_abort("free: munmap failed", ptr);
       }
       pthread_mutex_unlock(&g_mutex);
       return;
@@ -70,7 +68,7 @@ static void _roam_talloc(t_zone *zone, void *ptr) {
     head = head->next;
   }
   pthread_mutex_unlock(&g_mutex);
-  _optional_abort("free: address not found");
+  _optional_abort("pointer being freed was not allocated", ptr);
   return;
 }
 
@@ -89,5 +87,5 @@ void free(void *ptr) {
     zone = zone->next;
   }
   pthread_mutex_unlock(&g_mutex);
-  if (!zone) _optional_abort("free: zone not found");
+  if (!zone) _optional_abort("pointer being freed was not allocated", ptr);
 }

@@ -4,21 +4,6 @@
 #include "libft.h"
 #include "malloc.h"
 
-static void _concat_address(char *dst, unsigned long int n) {
-  unsigned long int e;
-  short int res;
-  int i = 1;
-
-  dst[0] = '0';
-  dst[1] = 'x';
-  for (e = n / 16; e; i++) e /= 16;
-  while (i--) {
-    res = ((n / ft_pow(16, e++)) % 16);
-    res = ((res + 48) * (res < 10)) + ((res + 55) * (res >= 10));
-    dst[i + 2] = res;
-  }
-}
-
 static void _concat_uint(char *dst, unsigned int n) {
   unsigned int e;
   int i = 1;
@@ -28,12 +13,11 @@ static void _concat_uint(char *dst, unsigned int n) {
 }
 
 static void _print_zone(void *zone_addr, e_zone type) {
-  char zonetype[3][6] = {"TINY", "SMALL", "LARGE"};
+  char zonetype[3][9] = {"TINY : ", "SMALL : ", "LARGE : "};
   char msg[32];
 
   ft_bzero(msg, sizeof(msg));
   ft_strlcpy(msg, zonetype[type], sizeof(msg));
-  ft_strlcat(msg, " : ", sizeof(msg));
   _concat_address(msg + ft_strlen(msg), (unsigned long)zone_addr);
   ft_strlcat(msg, "\n", sizeof(msg));
   write(1, msg, ft_strlen(msg));
@@ -92,7 +76,7 @@ void show_alloc_mem() {
   unsigned long min = 0;
   t_zone *zone = _get_ascending_zone(&min);
 
-  write(1, "### __ ###\n", 12);
+  write(1, "### __ ###\n", 12); /*TODO: delete*/
   while (zone) {
     _print_zone((void *)zone, zone->type);
     _roam_talloc(zone, &total);

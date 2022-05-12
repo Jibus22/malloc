@@ -5,7 +5,7 @@
 #include "malloc.h"
 
 int main() {
-  char *addr[10];
+  char *addr[20];
 
   addr[0] = malloc(20);
   addr[1] = malloc(40);
@@ -30,13 +30,16 @@ int main() {
   printf("------------- s_a_m -------------\n");
   show_alloc_mem();
 
-  strlcpy(addr[1], "Ceci est un test", 42);
-  printf("le contenu du 2eme 42: |%s|\n", addr[1]);
+  strlcpy(addr[1], "Ceci est un test", 30);
+  printf("le contenu de la zone de 40 octets: |%s|\n", addr[1]);
 
-  realloc(addr[1], 156);
+  addr[9] = realloc(addr[1], 156);
   printf("------------- s_a_m -------------\n");
   show_alloc_mem();
 
-  printf("le contenu du 2eme 42 devenu 156: |%s|\n", addr[1]);
+  printf("le contenu de la zone de 40 octets devenu 156: |%s|\n", addr[9]);
+  printf("le contenu de l'ancienne zone mémoire de la zone de 40 octets"\
+      " devenu 156: |%s|\n",
+      addr[1]);
   return 0;
 }
