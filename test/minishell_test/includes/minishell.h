@@ -2,7 +2,7 @@
 # define MINISHELL_H
 # include "struct.h"
 # include "libft.h"
-# include "/Users/lecorre/42/part-2/malloc/srcs/includes/malloc.h"
+# include "../../../srcs/includes/malloc.h"
 /* # include "/Users/lecorre/Desktop/malloc/includes/malloc.h" */
 
 # include <stdio.h>

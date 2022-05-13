@@ -6,12 +6,12 @@
 #    By: jle-corr <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/11 04:58:03 by jle-corr          #+#    #+#              #
-#    Updated: 2022/05/12 16:11:04 by jle-corr         ###   ########.fr        #
+#    Updated: 2022/05/13 23:10:18 by user42           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = clang
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fPIC
 DEPS = libft.h
 OBJDIR = libftobj
 

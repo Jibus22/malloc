@@ -59,7 +59,7 @@ static void _roam_talloc(t_zone *zone, unsigned int *total) {
 
 static t_zone *_get_ascending_zone(unsigned long *min) {
   t_zone *zone = g_mnode.zone;
-  unsigned long current, supp = UINTMAX_MAX;
+  unsigned long current, supp = ULONG_MAX;
 
   while (zone) {
     current = (unsigned long)zone;
@@ -67,7 +67,7 @@ static t_zone *_get_ascending_zone(unsigned long *min) {
     zone = zone->next;
   }
   *min = supp;
-  return ((t_zone *)(*min * (*min != UINTMAX_MAX)));
+  return ((t_zone *)(*min * (*min != ULONG_MAX)));
 }
 
 EXPORT

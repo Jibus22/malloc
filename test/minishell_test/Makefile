@@ -63,6 +63,10 @@ SRCS = $(addprefix $(SRCPATH)/, builtin_env_unset.c builtins_2.c \
 ##### OBJS #####
 OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 
+ifeq ($(HOSTTYPE),)
+HOSTTYPE := $(shell uname -m)_$(shell uname -s)
+endif
+LIBMALLOC = ft_malloc_$(HOSTTYPE)
 
 ### RULES ###
 
@@ -77,20 +81,13 @@ mk_libft :
 	@make -C $(LIBFTPATH)
 
 
-$(NAME) : message $(OBJ) $(INC_DEP)
+$(NAME) : $(OBJ) $(INC_DEP)
 	@echo "\n$(END)$(BLUE)# Making $(NAME) #$(END)$(GREY)"
-	# $(CC) -o $@ $(OBJ) $(LIBFT)
-	$(CC) -o $@ -L. -lft_malloc_x86_64_Darwin $(OBJ) $(LIBFT)
+	$(CC) -o $@ -L. -l$(LIBMALLOC) $(OBJ) $(LIBFT)
 	@echo "\n$(END)$(GREEN)# $(NAME) is built #$(END)"
 
-message :
-	@echo "\n$(END)$(BLUE)# Making $(NAME) objects #$(END)$(GREY)"
-
-
 $(OBJPATH)/%.o : $(SRCPATH)/%.c $(INC_DEP)
-	# $(CC) $(FLAGS) -I $(INC_LIBFT) -I $(INC_MINISHELL) -c $< -o $@
-	$(CC) $(FLAGS) -I $(INC_LIBFT) -I /Users/lecorre/42/part-2/malloc/srcs/includes/ -I $(INC_MINISHELL) -c $< -o $@
-	# $(CC) $(FLAGS) -I $(INC_LIBFT) -I /Users/lecorre/Desktop/malloc/includes/ -I $(INC_MINISHELL) -c $< -o $@
+	$(CC) $(FLAGS) -I $(INC_LIBFT) -I ../../../malloc/srcs/includes/ -I $(INC_MINISHELL) -c $< -o $@
 
 testit :
 	@$(MAKE) -C $(TESTPATH)

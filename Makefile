@@ -35,8 +35,8 @@ INC = $(addprefix -I , $(PATH_INCLUDE) $(PATH_INCLUDE2))
 ##### COMPILER #####
 CC = clang
 ##### COMPILATION FLAG #####
-CCFLAGS = -Wall -Wextra -Werror -std=c90 -fvisibility=hidden
-CCTESTFLAGS = -Wall -Wextra -Werror -std=c90
+CCFLAGS = -Wall -Wextra -Werror -fPIC -O -fvisibility=hidden
+CCTESTFLAGS = -Wall -Wextra -Werror
 
 ##### OSTYPE #####
 UNAME := $(shell uname)
@@ -73,7 +73,7 @@ $(NAME): $(LIBFT) $(OBJ)
 	@echo "\n$(END)$(GREEN)# $(NAME) is built #$(END)"
 
 $(LIBFT): 
-	@Make -C $(LIBFTPATH)
+	@make -C $(LIBFTPATH)
 
 $(OBJPATH)/%.o : $(SRCPATH)/%.c $(HEADERS)
 	$(CC) $(CCFLAGS) $(INC) -c $< -o $@
