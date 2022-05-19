@@ -87,7 +87,7 @@ $(NAME) : $(OBJ) $(INC_DEP)
 	@echo "\n$(END)$(GREEN)# $(NAME) is built #$(END)"
 
 $(OBJPATH)/%.o : $(SRCPATH)/%.c $(INC_DEP)
-	$(CC) $(FLAGS) -I $(INC_LIBFT) -I ../../../malloc/srcs/includes/ -I $(INC_MINISHELL) -c $< -o $@
+	$(CC) $(FLAGS) -I $(INC_LIBFT) -I ../../srcs/includes/ -I $(INC_MINISHELL) -c $< -o $@
 
 testit :
 	@$(MAKE) -C $(TESTPATH)

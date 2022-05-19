@@ -85,9 +85,11 @@ home_tests: all
 regular_tests: all
 	@sh test/correction/correction.sh
 
+timed_regular_tests: all
+	@sh test/correction/correction.sh -time
+
 minishell: all
-	@make re -C test/minishell_test/
-	@./test/minishell_test/./minishell
+	@sh test/minishell_test/minishell.sh
 
 help:
 	@echo "----- RULES: -----\n\n"\

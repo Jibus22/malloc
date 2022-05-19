@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 #include "malloc.h"
 
@@ -18,6 +18,7 @@ int main() {
   addr = malloc(39);
   addr = malloc(3);
   addr = malloc(2);
+  free(addr);
   show_alloc_mem();
   return 0;
 }

@@ -6,13 +6,13 @@
 /*   By: jfreitas <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/24 14:00:34 by jfreitas          #+#    #+#             */
-/*   Updated: 2021/03/15 19:30:52 by whoami           ###   ########.fr       */
+/*   Updated: 2022/05/19 20:35:48 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/libft.h"
 
-size_t	ft_strlen(char const *s)
+size_t	ft_strlen(const char *s)
 {
 	size_t	len;
 

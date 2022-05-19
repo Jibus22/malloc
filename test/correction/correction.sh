@@ -74,17 +74,36 @@ prompt () {
 prompt FtMallocErrorAbort
 prompt FtMallocScribble
 
+if [ $HOSTTYPE = "x86_64_Linux" ]; then
+	export LD_LIBRARY_PATH=$LIBPATH
+	export LD_INSERT_LIBRARIES=$LIBPATH/libft_malloc.so
+	export LD_FORCE_FLAT_NAMESPACE=1
+elif [ $HOSTTYPE = "x86_64_Darwin" ]; then
+	export DYLD_LIBRARY_PATH=$LIBPATH
+	export DYLD_INSERT_LIBRARIES=$LIBPATH/libft_malloc.so
+	export DYLD_FORCE_FLAT_NAMESPACE=1
+else
+	exit
+fi
+
+TIME=
+
+if [ $1 = "-time" ]; then
+	TIME="/usr/bin/time -v "
+fi
+
 echo $BLUE"## RUN TESTS WITH LIBFTMALLOC ##"$END
 for tests in $TESTS
 do echo $RED"run $tests:"$END &&\
 	$CC $CCTESTFLAGS $INC $TESTPATH/$tests -L$LIBPATH -l$LIBMALLOC\
-	-o $TESTPATH/$D_NAME && $TESTPATH/$D_NAME
+	-o $TESTPATH/$D_NAME && $TIME $TESTPATH/$D_NAME
 done
 
 echo $BLUE"## RUN TESTS WITH LIBC MALLOC ##"$END
+
 for tests in $TESTS
 do echo $RED"run $tests:"$END &&\
 	$CC $CCTESTFLAGS $INC $TESTPATH/$tests -o $TESTPATH/$D_NAME\
-	&& $TESTPATH/$D_NAME
+	&& $TIME $TESTPATH/$D_NAME
 done
 rm $D_NAME
