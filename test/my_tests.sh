@@ -1,5 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
+
+D_NAME="test.out"
 
 ##### COLORS #####
 BLUE="\033[1;35m"
@@ -31,8 +33,8 @@ TESTPATH="."
 ##### LIB #####
 HOSTTYPE=$(uname -m)_$(uname -s)
 LIBFTMALLOC="libft_malloc_"$HOSTTYPE".so"
-LIBMALLOC="ft_malloc_"$HOSTTYPE
-LIBPATH="."
+LIBMALLOC="ft_malloc"
+LIBPATH=".."
 
 ##### INCLUDE #####
 PATH_INCLUDE="$SRCPATH/includes"
@@ -43,18 +45,14 @@ INC="-I $PATH_INCLUDE"
 ##### COMPILER #####
 CC="clang"
 ##### COMPILATION FLAG #####
-CCTESTFLAGS="-Wall -Wextra -Werror -std=c90"
+CCTESTFLAGS="-Wall -Wextra -Werror"
 
-TESTS=("t1.c" "t2.c" "t3.c" "t4.c")
-
-
-if [ -e $LIBFTMALLOC ]; then
-	rm $LIBFTMALLOC
-fi
-cp $ROOT/$LIBFTMALLOC $TESTPATH
+##### FILES #####
+TESTS="t1.c t2.c t3.c t4.c"
 
 
-D_NAME="test.out"
+
+##### CODE #####
 
 prompt () {
 	while true; do
@@ -78,7 +76,8 @@ prompt FtMallocErrorAbort
 prompt FtMallocScribble
 
 echo $BLUE"## RUN HOME TESTS WITH LIBFTMALLOC ##"$END
-for tests in "${TESTS[@]}"
+
+for tests in $TESTS
 do echo $RED"run $tests:"$END && sleep 0.7 &&\
 	$CC $CCTESTFLAGS $INC $TESTPATH/$tests -L$LIBPATH -l$LIBMALLOC\
 	-o $TESTPATH/$D_NAME && $TESTPATH/$D_NAME

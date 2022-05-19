@@ -66,7 +66,7 @@ OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 ifeq ($(HOSTTYPE),)
 HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
-LIBMALLOC = ft_malloc_$(HOSTTYPE)
+LIBMALLOC = ft_malloc
 
 ### RULES ###
 
@@ -83,7 +83,7 @@ mk_libft :
 
 $(NAME) : $(OBJ) $(INC_DEP)
 	@echo "\n$(END)$(BLUE)# Making $(NAME) #$(END)$(GREY)"
-	$(CC) -o $@ -L. -l$(LIBMALLOC) $(OBJ) $(LIBFT)
+	$(CC) -o $@ -L../.. -l$(LIBMALLOC) $(OBJ) $(LIBFT)
 	@echo "\n$(END)$(GREEN)# $(NAME) is built #$(END)"
 
 $(OBJPATH)/%.o : $(SRCPATH)/%.c $(INC_DEP)

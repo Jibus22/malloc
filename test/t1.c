@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 #include "malloc.h"
 
@@ -30,7 +30,7 @@ int main() {
   printf("------------- s_a_m -------------\n");
   show_alloc_mem();
 
-  strlcpy(addr[1], "Ceci est un test", 30);
+  strncpy(addr[1], "Ceci est un test", 30);
   printf("le contenu de la zone de 40 octets: |%s|\n", addr[1]);
 
   addr[9] = realloc(addr[1], 156);

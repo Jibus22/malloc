@@ -86,8 +86,6 @@ regular_tests: all
 	@sh test/correction/correction.sh
 
 minishell: all
-	@rm -f test/minishell_test/$(NAME)
-	@cp $(NAME) test/minishell_test/
 	@make re -C test/minishell_test/
 	@./test/minishell_test/./minishell
 
