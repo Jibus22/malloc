@@ -2,8 +2,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "malloc.h"
-
 #define M (1024 * 1024)
 
 void print(char *s)

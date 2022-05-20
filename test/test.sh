@@ -6,8 +6,7 @@ LIBPATH=$PWD
 if [ $HOSTTYPE = "x86_64_Linux" ]; then
 	echo $LIBPATH "linux"
 	export LD_LIBRARY_PATH=$LIBPATH
-	export LD_INSERT_LIBRARIES=$LIBPATH/libft_malloc.so
-	export LD_FORCE_FLAT_NAMESPACE=1
+	export LD_PRELOAD=libft_malloc.so
 elif [ $HOSTTYPE = "x86_64_Darwin" ]; then
 	echo "mac"
 	export DYLD_LIBRARY_PATH=$LIBPATH
