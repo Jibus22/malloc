@@ -1,16 +1,4 @@
-#include <limits.h>
-#include <stdio.h>
-
-#include "libft.h"
 #include "malloc.h"
-
-static void _concat_uint(char *dst, unsigned int n) {
-  unsigned int e;
-  int i = 1;
-
-  for (e = n / 10; e; i++) e /= 10;
-  while (i--) dst[i] = ((n / ft_pow(10, e++)) % 10) + 48;
-}
 
 static void _print_zone(void *zone_addr, e_zone type) {
   char zonetype[3][9] = {"TINY : ", "SMALL : ", "LARGE : "};
@@ -70,13 +58,12 @@ static t_zone *_get_ascending_zone(unsigned long *min) {
   return ((t_zone *)(*min * (*min != ULONG_MAX)));
 }
 
-EXPORT
+/* EXPORT */
 void show_alloc_mem() {
   unsigned int total = 0;
   unsigned long min = 0;
   t_zone *zone = _get_ascending_zone(&min);
 
-  write(1, "### __ ###\n", 12); /*TODO: delete*/
   while (zone) {
     _print_zone((void *)zone, zone->type);
     _roam_talloc(zone, &total);

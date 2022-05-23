@@ -25,6 +25,29 @@ fi
 HOSTTYPE=$(uname -m)_$(uname -s)
 LIBPATH="../.."
 
+##### CODE #####
+
+prompt () {
+	while true; do
+		read -p "Do you wish to set "$1" ? " yesno
+		case $yesno in
+			[Yy]* )
+				echo "You answered yes"
+				export $1=1
+				break
+				;;
+			[Nn]* )
+				echo "You answered no"
+				break
+				;;
+			* ) echo "Answer either yes or no";;
+		esac
+	done
+}
+
+prompt FtMallocErrorAbort
+prompt FtMallocScribble
+
 if [ $HOSTTYPE = "x86_64_Linux" ]; then
 	export LD_LIBRARY_PATH=$LIBPATH
 	export LD_INSERT_LIBRARIES=$LIBPATH/libft_malloc.so

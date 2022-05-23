@@ -20,7 +20,13 @@ int main() {
   free(addr);
   addr = malloc(83490);
   free(addr);
+  addr = malloc(2490);
+  free(addr);
+  addr = malloc(290);
+  free(addr);
   addr = malloc(3434895);
+  free(addr);
+  addr = malloc(290);
   free(addr);
   show_alloc_mem();
   return 0;

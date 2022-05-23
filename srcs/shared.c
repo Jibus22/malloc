@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 #include "malloc.h"
-#include "libft.h"
 
 void _concat_address(char *dst, unsigned long int n) {
   unsigned long int e;
@@ -18,6 +13,26 @@ void _concat_address(char *dst, unsigned long int n) {
     res = ((res + 48) * (res < 10)) + ((res + 55) * (res >= 10));
     dst[i + 2] = res;
   }
+}
+
+void _concat_uint(char *dst, unsigned int n) {
+  unsigned int e;
+  int i = 1;
+
+  for (e = n / 10; e; i++) e /= 10;
+  while (i--) dst[i] = ((n / ft_pow(10, e++)) % 10) + 48;
+}
+
+void _print_addr(void *ptr, size_t size, const char *title) {
+  char dst[96];
+
+  ft_bzero(dst, sizeof(dst));
+  ft_strlcpy(dst, title, sizeof(dst));
+  _concat_address(dst + ft_strlen(dst), (unsigned long)ptr);
+  ft_strlcat(dst, " size: ", sizeof(dst));
+  _concat_uint(dst + ft_strlen(dst), size);
+  ft_strlcat(dst, " ; ", sizeof(dst));
+  write(1, dst, ft_strlen(dst));
 }
 
 bool _getenv_cached(e_env env) {
@@ -50,9 +65,9 @@ void _mnode_init() {
   int pagesize = getpagesize();
 
   g_mnode.tiny_smax =
-      (TINY_FACTOR * ((pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc));
+      ((TINY_FACTOR * pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc);
   g_mnode.small_smax =
-      (SMALL_FACTOR * ((pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc));
+      ((SMALL_FACTOR * pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc);
 }
 
 void _setAllocType(size_t size, e_zone *alloc_type) {
@@ -88,7 +103,6 @@ void _updateVacantMax(t_zone *zone, size_t zonesize) {
   t_alloc *head = zone->start;
   unsigned int new_vacant = 0;
   ptrdiff_t diff;
-  /* int i = 0; */
 
   if (!head) {
     zone->vacant_max = zonesize - sizeof(t_zone);
@@ -98,16 +112,6 @@ void _updateVacantMax(t_zone *zone, size_t zonesize) {
     diff = ((char *)head->next) - ((char *)(head->payload + head->size));
     new_vacant =
         (new_vacant * (diff <= new_vacant)) + (diff * (diff > new_vacant));
-    /* if (zone->vacant_max == 53) { */
-    /*   if (diff == 35 && i < 1) { */
-    /*     i++; */
-    /*     /1* printf("# head: %lX, head->size: %u, head->next: %lX,
-     * head->next->size: %u ;#\n", head, head->size, head->next,
-     * head->next->size); *1/ */
-    /*     _print_addr2(head->payload, "head->payload: "); */
-    /*     _print_addr2(head->next->payload, "head->next->payload: "); */
-    /*   } */
-    /* } */
     head = head->next;
   }
   diff = ((char *)zone + zonesize) - ((char *)head->payload + head->size);

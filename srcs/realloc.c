@@ -1,6 +1,3 @@
-#include <stdio.h>
-
-#include "libft.h"
 #include "malloc.h"
 
 static t_alloc *_roam_talloc(t_zone *zone, void *ptr) {
@@ -68,7 +65,7 @@ static char *_realloc(t_zone *zone, void *ptr, size_t size) {
   return new;
 }
 
-EXPORT
+/* EXPORT */
 void *realloc(void *ptr, size_t size) {
   t_zone *zone = g_mnode.zone;
 

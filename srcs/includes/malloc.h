@@ -5,20 +5,20 @@
 ** each zone must be able to hold at least 100 allocations so we have to
 ** consider the max sized block of each zone.
 **
-** Calculus: (x * (4096 - 32) / 100) - 32
+** Calculus: ((x * 4096 - 32) / 100) - 32
 **
 ** x is the arbitrary factor we choose.
-** 32 is the size of t_alloc metadata in Bytes (for each allocations).
 ** 32 is the size of t_zone metadata in Bytes (for each zone).
+** 32 is the size of t_alloc metadata in Bytes (for each allocations).
 ** 4096 is the value of getpagesize() on my system. Values are hard-coded here
 ** for the sake of the example, but not into code.
 **
-** 2 gives max alloc size as 49.     (we can have 100 allocations of 48B)
-** 10 gives max alloc size as 376.
-** 50 gives max alloc size as 2000.
-** 100 gives max alloc size as 4032.
-** 150 gives max alloc size as 6064.
-** 200 gives max alloc size as 8096.
+** 2 gives max alloc size as 49.     (we can have 100 allocations of 49B)
+** 10 gives max alloc size as 377.
+** 50 gives max alloc size as 2015.
+** 100 gives max alloc size as 4063.
+** 150 gives max alloc size as 6111.
+** 200 gives max alloc size as 8159.
 **
 ** a large memory block is automatically rounded to the higher multiple of
 ** getpagesize() - often = 4096 - so it makes sense to divide the capacity of
@@ -33,11 +33,18 @@
 #define TINY_FACTOR 10
 #define SMALL_FACTOR 150
 
-#define EXPORT __attribute__((visibility("default")))
+/* #define EXPORT __attribute__((visibility("default"))) */
 
 #include <pthread.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
+#include <sys/mman.h>
+/* #include <stdio.h> */
+
+#include "libft.h"
 
 typedef enum zone { tiny, small, large } e_zone;
 
@@ -88,6 +95,8 @@ void _setAllocType(size_t size, e_zone *alloc_type);
 size_t _getZoneSize(e_zone alloc_type, size_t size);
 void _updateVacantMax(t_zone *zone, size_t zonesize);
 void _concat_address(char *dst, unsigned long int n);
+void _concat_uint(char *dst, unsigned int n);
+void _print_addr(void *ptr, size_t size, const char *title);
 bool _getenv_cached(e_env env);
 void _optional_abort(const char *msg, void *ptr);
 
