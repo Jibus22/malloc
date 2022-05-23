@@ -34,11 +34,13 @@ HOSTTYPE=$(uname -m)_$(uname -s)
 LIBFTMALLOC="libft_malloc_"$HOSTTYPE".so"
 LIBMALLOC="ft_malloc_"$HOSTTYPE
 LIBPATH="../.."
+LIBFTPATH="$ROOT/libft"
 
 ##### INCLUDE #####
 PATH_INCLUDE="$SRCPATH/includes"
 PATH_INCLUDE2=$LIBFTPATH
 INC="-I $PATH_INCLUDE"
+INC=$INC" -I $LIBFTPATH"
 
 
 ##### COMPILER #####
