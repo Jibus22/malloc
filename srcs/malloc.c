@@ -125,8 +125,8 @@ void *malloc(size_t size) {
   if (!zone) {
     zone = _create_zone(size, alloc_type);
     if (!zone) {
-      return NULL;
       pthread_mutex_unlock(&g_mutex);
+      return NULL;
     }
     _addZone(zone);
   }
