@@ -1,8 +1,5 @@
 #include "malloc.h"
 
-t_mnode g_mnode = {NULL, 0, 0};
-pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
-
 /**
  * Create a zone of a size corresponding to which had been requested by the
  * client: tiny, small or large.
@@ -118,8 +115,8 @@ void *malloc(size_t size) {
   e_zone alloc_type;
   void *client_alloc;
 
+  if (!size) return NULL;
   pthread_mutex_lock(&g_mutex);
-  if (!g_mnode.tiny_smax) _mnode_init();
   _setAllocType(size, &alloc_type);
   zone = _getZone(size, alloc_type);
   if (!zone) {

@@ -1,40 +1,5 @@
 #include "malloc.h"
 
-void _concat_address(char *dst, unsigned long int n) {
-  unsigned long int e;
-  short int res;
-  int i = 1;
-
-  dst[0] = '0';
-  dst[1] = 'x';
-  for (e = n / 16; e; i++) e /= 16;
-  while (i--) {
-    res = ((n / ft_pow(16, e++)) % 16);
-    res = ((res + 48) * (res < 10)) + ((res + 55) * (res >= 10));
-    dst[i + 2] = res;
-  }
-}
-
-void _concat_uint(char *dst, unsigned int n) {
-  unsigned int e;
-  int i = 1;
-
-  for (e = n / 10; e; i++) e /= 10;
-  while (i--) dst[i] = ((n / ft_pow(10, e++)) % 10) + 48;
-}
-
-void _print_addr(void *ptr, size_t size, const char *title) {
-  char dst[96];
-
-  ft_bzero(dst, sizeof(dst));
-  ft_strlcpy(dst, title, sizeof(dst));
-  _concat_address(dst + ft_strlen(dst), (unsigned long)ptr);
-  ft_strlcat(dst, " size: ", sizeof(dst));
-  _concat_uint(dst + ft_strlen(dst), size);
-  ft_strlcat(dst, " ; ", sizeof(dst));
-  write(1, dst, ft_strlen(dst));
-}
-
 bool _getenv_cached(e_env env) {
   static int env_cache;
   static bool init;
@@ -42,6 +7,7 @@ bool _getenv_cached(e_env env) {
   if (!init) {
     if (getenv("FtMallocErrorAbort")) env_cache |= ENV_FTMALLOCERRORABORT;
     if (getenv("FtMallocScribble")) env_cache |= ENV_FTSCRIBBLE;
+    if (getenv("FtLeaks")) env_cache |= ENV_FTLEAKS;
     init = true;
   }
   return (env & env_cache);
@@ -59,15 +25,6 @@ void _optional_abort(const char *msg, void *ptr) {
   ft_strlcat(buf, "\n", sizeof(buf));
   write(1, buf, ft_strlen(buf));
   abort();
-}
-
-void _mnode_init() {
-  int pagesize = getpagesize();
-
-  g_mnode.tiny_smax =
-      ((TINY_FACTOR * pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc);
-  g_mnode.small_smax =
-      ((SMALL_FACTOR * pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc);
 }
 
 void _setAllocType(size_t size, e_zone *alloc_type) {

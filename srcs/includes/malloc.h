@@ -50,7 +50,8 @@ typedef enum zone { tiny, small, large } e_zone;
 
 typedef enum env {
   ENV_FTMALLOCERRORABORT = 1 << 0,
-  ENV_FTSCRIBBLE = 1 << 1
+  ENV_FTSCRIBBLE = 1 << 1,
+  ENV_FTLEAKS = 1 << 2
 } e_env;
 
 /**
@@ -87,18 +88,22 @@ extern pthread_mutex_t g_mutex;
 
 void *malloc(size_t size);
 void *realloc(void *ptr, size_t size);
+void *calloc(size_t count, size_t size);
 void free(void *ptr);
+
 void show_alloc_mem();
+void _show_leaks();
 
 t_alloc *_find_alloc(t_zone *zone, void *ptr);
 t_zone *_find_zone(t_zone *zone, void *ptr);
-void _mnode_init();
 void _setAllocType(size_t size, e_zone *alloc_type);
 size_t _getZoneSize(e_zone alloc_type, size_t size);
 void _updateVacantMax(t_zone *zone, size_t zonesize);
+
 void _concat_address(char *dst, unsigned long int n);
 void _concat_uint(char *dst, unsigned int n);
 void _print_addr(void *ptr, size_t size, const char *title);
+
 bool _getenv_cached(e_env env);
 void _optional_abort(const char *msg, void *ptr);
 

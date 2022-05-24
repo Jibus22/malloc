@@ -35,7 +35,7 @@ INC = $(addprefix -I , $(PATH_INCLUDE) $(PATH_INCLUDE2))
 ##### COMPILER #####
 CC = clang
 ##### COMPILATION FLAG #####
-CCFLAGS = -Wall -Wextra -Werror -fPIC #-fvisibility=hidden
+CCFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden
 CCTESTFLAGS = -Wall -Wextra -Werror
 
 ##### OSTYPE #####
@@ -50,7 +50,7 @@ endif
 
 ##### SRCS #####
 SRCS = $(addprefix $(SRCPATH)/, malloc.c show_alloc_mem.c free.c realloc.c\
-			 shared.c)
+			 calloc.c shared.c constructor.c destructor.c shared_log.c)
 
 OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 

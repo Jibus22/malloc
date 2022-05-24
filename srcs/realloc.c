@@ -3,7 +3,6 @@
 static bool _is_same_type(size_t size_c, size_t size_n) {
   e_zone alloc_type_c, alloc_type_n;
 
-  if (!g_mnode.tiny_smax) _mnode_init();
   _setAllocType(size_c, &alloc_type_c);
   _setAllocType(size_n, &alloc_type_n);
   return alloc_type_c == alloc_type_n;

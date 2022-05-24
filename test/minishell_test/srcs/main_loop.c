@@ -149,7 +149,7 @@ int	main_loop(t_list **env, t_list **export)
 		cmd = tokenizer(line);
 		if (!(cmd))
 			return (RT_FAIL);
-		free(line);
+		/* free(line); */
 		if (executer(env, cmd, export, saved_path) != RT_SUCCESS)
 			return (clear_lists_exit(&cmd, env, saved_path));
 		ft_lstclear(&cmd, &clear_commandlist);
