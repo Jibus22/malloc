@@ -58,7 +58,7 @@ static t_zone *_get_ascending_zone(unsigned long *min) {
   return ((t_zone *)(*min * (*min != ULONG_MAX)));
 }
 
-/* EXPORT */
+EXPORT
 void show_alloc_mem() {
   unsigned int total = 0;
   unsigned long min = 0;

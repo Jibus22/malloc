@@ -112,7 +112,7 @@ static void *_create_client_alloc(t_zone *zone, size_t size) {
   return head->payload;
 }
 
-/* EXPORT */
+EXPORT
 void *malloc(size_t size) {
   t_zone *zone;
   e_zone alloc_type;
