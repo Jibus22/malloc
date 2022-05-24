@@ -33,7 +33,7 @@
 #define TINY_FACTOR 10
 #define SMALL_FACTOR 150
 
-/* #define EXPORT __attribute__((visibility("default"))) */
+#define EXPORT __attribute__((visibility("default")))
 
 #include <pthread.h>
 #include <stdbool.h>
@@ -42,7 +42,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <sys/mman.h>
-/* #include <stdio.h> */
+#include <stdio.h>
 
 #include "libft.h"
 
@@ -90,6 +90,8 @@ void *realloc(void *ptr, size_t size);
 void free(void *ptr);
 void show_alloc_mem();
 
+t_alloc *_find_alloc(t_zone *zone, void *ptr);
+t_zone *_find_zone(t_zone *zone, void *ptr);
 void _mnode_init();
 void _setAllocType(size_t size, e_zone *alloc_type);
 size_t _getZoneSize(e_zone alloc_type, size_t size);

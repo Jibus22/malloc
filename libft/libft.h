@@ -6,7 +6,7 @@
 /*   By: jle-corr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/03 16:18:20 by jle-corr          #+#    #+#             */
-/*   Updated: 2022/05/23 18:52:51 by user42           ###   ########.fr       */
+/*   Updated: 2022/05/24 00:49:32 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,6 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <sys/stat.h>
-
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 20
-# endif
-
-# ifndef MAX_FD
-#  define MAX_FD 10
-# endif
-
-typedef struct s_list
-{
-	void			*content;
-	struct s_list	*next;
-}	t_list;
 
 /*
 **	memory

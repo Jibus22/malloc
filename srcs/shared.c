@@ -119,3 +119,31 @@ void _updateVacantMax(t_zone *zone, size_t zonesize) {
       (new_vacant * (diff <= new_vacant)) + (diff * (diff > new_vacant));
   zone->vacant_max = new_vacant;
 }
+
+t_alloc *_find_alloc(t_zone *zone, void *ptr) {
+  t_alloc *head;
+
+  if (!zone) return NULL;
+  head = zone->start;
+  while (head) {
+    if (head->payload == ptr) return head;
+    head = head->next;
+  }
+  return NULL;
+}
+
+t_zone *_find_zone(t_zone *zone, void *ptr) {
+  char *end;
+
+  while (zone) {
+	if (!zone->start) {
+	  zone = zone->next;
+	  continue;
+	}
+    end = (char *)zone + _getZoneSize(zone->type, zone->start->size);
+    if (ptr >= (void *)((t_alloc *)(zone + 1) + 1) && (char *)ptr < end)
+		return zone;
+    zone = zone->next;
+  }
+  return NULL;
+}
