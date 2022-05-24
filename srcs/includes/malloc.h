@@ -35,14 +35,14 @@
 
 #define EXPORT __attribute__((visibility("default")))
 
+#include <limits.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <limits.h>
-#include <sys/mman.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <unistd.h>
 
 #include "libft.h"
 

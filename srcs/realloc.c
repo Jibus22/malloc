@@ -9,8 +9,8 @@ static bool _is_same_type(size_t size_c, size_t size_n) {
   return alloc_type_c == alloc_type_n;
 }
 
-static char *_soft_realloc(t_zone *zone, t_alloc *alloc,
-		size_t size, size_t zonesize) {
+static char *_soft_realloc(t_zone *zone, t_alloc *alloc, size_t size,
+                           size_t zonesize) {
   char *next;
 
   if (!_is_same_type(alloc->size, size)) return NULL;
@@ -19,12 +19,14 @@ static char *_soft_realloc(t_zone *zone, t_alloc *alloc,
       ft_memset(alloc->payload + size, 0x55, alloc->size - size);
   } else {
     next = (char *)(((unsigned long)alloc->next *
-	  (unsigned long)(alloc->next != NULL)) +
-      ((unsigned long)((char*)zone + zonesize) * (unsigned long)(!alloc->next)));
+                     (unsigned long)(alloc->next != NULL)) +
+                    ((unsigned long)((char *)zone + zonesize) *
+                     (unsigned long)(!alloc->next)));
     if (next > alloc->payload + size) {
       if (_getenv_cached(ENV_FTSCRIBBLE))
         ft_memset(alloc->payload + alloc->size, 0xaa, size - alloc->size);
-    } else return NULL;
+    } else
+      return NULL;
   }
   alloc->size = size;
   _updateVacantMax(zone, zonesize);
@@ -65,6 +67,7 @@ void *realloc(void *ptr, size_t size) {
     pthread_mutex_unlock(&g_mutex);
     _optional_abort("pointer being realloc'd was not allocated", ptr);
     return NULL;
-  } else if (match->size == size) return ptr;
+  } else if (match->size == size)
+    return ptr;
   return _realloc(zone, match, size);
 }

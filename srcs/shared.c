@@ -136,13 +136,13 @@ t_zone *_find_zone(t_zone *zone, void *ptr) {
   char *end;
 
   while (zone) {
-	if (!zone->start) {
-	  zone = zone->next;
-	  continue;
-	}
+    if (!zone->start) {
+      zone = zone->next;
+      continue;
+    }
     end = (char *)zone + _getZoneSize(zone->type, zone->start->size);
     if (ptr >= (void *)((t_alloc *)(zone + 1) + 1) && (char *)ptr < end)
-		return zone;
+      return zone;
     zone = zone->next;
   }
   return NULL;
