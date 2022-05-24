@@ -11,14 +11,14 @@ int main() {
   for (i = 0; i < 180; i++)
     addr[i] = malloc(42);
   for (i = 0; i < 180; i++)
-    malloc(642 + (i % 4));
+    addr[i] = malloc(642 + (i % 4));
   for (i = 0; i < 180; i++)
-    malloc(14292 + (i % 400));
+    addr[i] = malloc(14292 + (i % 400));
   for (i = 0; i < 180; i++)
     free(addr[i]);
-  malloc(420133);
+  addr[0] = malloc(420133);
   for (i = 0; i < 80; i++)
-    malloc(3);
+    addr[i] = malloc(3);
   show_alloc_mem();
   return 0;
 }
