@@ -48,7 +48,7 @@ void free(void *ptr) {
   pthread_mutex_lock(&g_mutex);
   zone = _find_zone(zone, ptr);
   match = _find_alloc(zone, ptr);
-  if (!zone) {
+  if (!match) {
     pthread_mutex_unlock(&g_mutex);
     _optional_abort("pointer being freed was not allocated", ptr);
     return;
