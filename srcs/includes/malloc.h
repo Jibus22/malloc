@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "libft.h"
 

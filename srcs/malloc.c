@@ -116,6 +116,7 @@ void *malloc(size_t size) {
   void *client_alloc;
 
   if (!size) return NULL;
+  size = (size + 15) & ~15;
   pthread_mutex_lock(&g_mutex);
   _setAllocType(size, &alloc_type);
   zone = _getZone(size, alloc_type);
