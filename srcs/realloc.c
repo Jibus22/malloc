@@ -69,7 +69,9 @@ void *realloc(void *ptr, size_t size) {
     pthread_mutex_unlock(&g_mutex);
     _optional_abort("pointer being realloc'd was not allocated", ptr);
     return NULL;
-  } else if (match->size == size)
+  } else if (match->size == size) {
+    pthread_mutex_unlock(&g_mutex);
     return ptr;
+  }
   return _realloc(zone, match, size);
 }
