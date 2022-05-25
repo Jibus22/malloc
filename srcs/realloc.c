@@ -3,6 +3,7 @@
 static bool _is_same_type(size_t size_c, size_t size_n) {
   e_zone alloc_type_c, alloc_type_n;
 
+  if (!g_mnode.tiny_smax) _mnode_init();
   _setAllocType(size_c, &alloc_type_c);
   _setAllocType(size_n, &alloc_type_n);
   return alloc_type_c == alloc_type_n;
@@ -39,6 +40,7 @@ static char *_realloc(t_zone *zone, t_alloc *alloc, size_t size) {
   void *new;
 
   if (res) return res;
+  pthread_mutex_unlock(&g_mutex);
   new = malloc(size);
   if (!new) return NULL;
   pthread_mutex_lock(&g_mutex);
@@ -62,6 +64,7 @@ void *realloc(void *ptr, size_t size) {
   pthread_mutex_lock(&g_mutex);
   zone = _find_zone(zone, ptr);
   match = _find_alloc(zone, ptr);
+  size = (size + 15) & ~15;
   if (!match) {
     pthread_mutex_unlock(&g_mutex);
     _optional_abort("pointer being realloc'd was not allocated", ptr);

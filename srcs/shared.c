@@ -27,6 +27,15 @@ void _optional_abort(const char *msg, void *ptr) {
   abort();
 }
 
+void _mnode_init() {
+  int pagesize = getpagesize();
+
+  g_mnode.tiny_smax =
+      ((TINY_FACTOR * pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc);
+  g_mnode.small_smax =
+      ((SMALL_FACTOR * pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc);
+}
+
 void _setAllocType(size_t size, e_zone *alloc_type) {
   *alloc_type =
       (0 * (size <= g_mnode.tiny_smax)) +

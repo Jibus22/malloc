@@ -95,6 +95,7 @@ void free(void *ptr);
 void show_alloc_mem();
 void _show_leaks();
 
+void _mnode_init();
 t_alloc *_find_alloc(t_zone *zone, void *ptr);
 t_zone *_find_zone(t_zone *zone, void *ptr);
 void _setAllocType(size_t size, e_zone *alloc_type);

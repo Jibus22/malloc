@@ -7,6 +7,7 @@ void *calloc(size_t count, size_t size) {
 
   total_size = size * count;
   if (!count || !size || (total_size / count != size)) return (NULL);
+  total_size = (total_size + 15) & ~15;
   res = malloc(total_size);
   pthread_mutex_lock(&g_mutex);
   if (res) ft_bzero(res, total_size);

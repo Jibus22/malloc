@@ -118,6 +118,7 @@ void *malloc(size_t size) {
   if (!size) return NULL;
   size = (size + 15) & ~15;
   pthread_mutex_lock(&g_mutex);
+  if (!g_mnode.tiny_smax) _mnode_init();
   _setAllocType(size, &alloc_type);
   zone = _getZone(size, alloc_type);
   if (!zone) {

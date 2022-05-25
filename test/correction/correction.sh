@@ -33,7 +33,8 @@ TESTPATH="."
 HOSTTYPE=$(uname -m)_$(uname -s)
 LIBFTMALLOC="libft_malloc_"$HOSTTYPE".so"
 LIBMALLOC="ft_malloc_"$HOSTTYPE
-LIBPATH="../.."
+LMALLOC="ft_malloc"
+LIBPATH=$ROOT
 LIBFTPATH="$ROOT/libft"
 
 ##### INCLUDE #####
@@ -100,11 +101,18 @@ fi
 echo $BLUE"## RUN TESTS WITH LIBFTMALLOC ##"$END
 for tests in $TESTS
 do echo $RED"run $tests:"$END &&\
-	$CC $CCTESTFLAGS $INC $TESTPATH/$tests -L$LIBPATH -l$LIBMALLOC\
+	$CC $CCTESTFLAGS $INC $TESTPATH/$tests -L$LIBPATH -l$LMALLOC\
 	-o $TESTPATH/$D_NAME && $TIME $TESTPATH/$D_NAME
 done
 
 echo $BLUE"## RUN TESTS WITH LIBC MALLOC ##"$END
+
+export LD_LIBRARY_PATH=
+export LD_INSERT_LIBRARIES=
+export LD_FORCE_FLAT_NAMESPACE=
+export DYLD_LIBRARY_PATH=
+export DYLD_INSERT_LIBRARIES=
+export DYLD_FORCE_FLAT_NAMESPACE=
 
 for tests in $TESTS
 do echo $RED"run $tests:"$END &&\

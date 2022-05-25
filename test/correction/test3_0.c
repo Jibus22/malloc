@@ -12,6 +12,7 @@ void print(char *s)
 int main()
 { char *addr1; char *addr3;
 
+    write(1, "start\n", 6);
     addr1 = (char*)malloc(16*M);
     strcpy(addr1, "Bonjour\n");
     print(addr1);
